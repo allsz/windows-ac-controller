@@ -25,6 +25,7 @@ Desenvolvido em **Python 3.11+** com **PySide6 (Qt)**, inspirado nas diretrizes 
   - **Sleep:** Temporizadores rápidos (1h, 2h, 4h, 8h ou Off).
   - **Airflow:** Controle de oscilação contínua (*Swing*) e aleta fixa (*Vertical*) com animação fluida.
 - **Modo Eco:** Interruptor animado para desligar ou ligar a luz do visor do ar-condicionado.
+- **Inicialização Automática com o Windows:** Opção com caixa de seleção integrada diretamente no menu da bandeja ("Iniciar com o Windows"), iniciando de forma silenciosa e minimizada em segundo plano no boot do sistema via Registro do Windows (HKCU, sem exigir permissão de Administrador).
 
 ---
 

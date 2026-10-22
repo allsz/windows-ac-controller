@@ -67,6 +67,42 @@ def get_resource_path(relative_path: str) -> str:
     return os.path.join(base, relative_path)
 
 
+def is_autostart_enabled(app_name: str = "LGAirConditioner") -> bool:
+    """Verifica se o aplicativo está configurado para inicializar com o Windows no Registro (HKCU)."""
+    try:
+        import winreg
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, winreg.KEY_READ)
+        val, _ = winreg.QueryValueEx(key, app_name)
+        winreg.CloseKey(key)
+        return bool(val)
+    except Exception:
+        return False
+
+
+def set_autostart_enabled(enabled: bool, app_name: str = "LGAirConditioner") -> bool:
+    """Adiciona ou remove a inicialização com o Windows no Registro (HKCU, sem exigir admin)."""
+    try:
+        import winreg
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, winreg.KEY_SET_VALUE)
+        if enabled:
+            if getattr(sys, 'frozen', False):
+                cmd = f'"{sys.executable}" --silent'
+            else:
+                script_path = os.path.abspath(__file__)
+                cmd = f'"{sys.executable}" "{script_path}" --silent'
+            winreg.SetValueEx(key, app_name, 0, winreg.REG_SZ, cmd)
+        else:
+            try:
+                winreg.DeleteValue(key, app_name)
+            except FileNotFoundError:
+                pass
+        winreg.CloseKey(key)
+        return True
+    except Exception as e:
+        print(f"[Autostart Error]: {e}", flush=True)
+        return False
+
+
 def load_user_svg(filename: str, width: int = 30, height: int = 30, padding: int = 1, color: str = "#FFFFFF") -> QtGui.QPixmap:
     """Carrega os arquivos SVG da pasta assets com cor branca pura (#FFFFFF) e dimensionamento proporcional"""
     path = get_resource_path(os.path.join("assets", filename))
@@ -1567,32 +1603,54 @@ class FullTrayWindow(QtWidgets.QWidget):
             self.hide()
 
 
-def create_tray_icon_pixmap() -> QtGui.QPixmap:
-    pixmap = QtGui.QPixmap(64, 64)
-    pixmap.fill(QtCore.Qt.GlobalColor.transparent)
-    painter = QtGui.QPainter(pixmap)
-    painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+def is_windows_taskbar_light() -> bool:
+    """Verifica no registro do Windows se a barra de tarefas está no modo claro (1) ou escuro (0)."""
+    try:
+        import winreg
+        key = winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER,
+            r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
+            0,
+            winreg.KEY_READ
+        )
+        val, _ = winreg.QueryValueEx(key, "SystemUsesLightTheme")
+        winreg.CloseKey(key)
+        return bool(val == 1)
+    except Exception:
+        return False
 
-    painter.setBrush(QtGui.QBrush(QtGui.QColor(30, 32, 38)))
-    painter.setPen(QtGui.QPen(QtGui.QColor(255, 255, 255, 40), 2))
-    painter.drawRoundedRect(4, 4, 56, 56, 16, 16)
 
-    painter.setBrush(QtGui.QBrush(QtGui.QColor(240, 240, 245)))
-    painter.setPen(QtCore.Qt.PenStyle.NoPen)
-    painter.drawRoundedRect(12, 16, 40, 18, 4, 4)
+def create_tray_icon() -> QtGui.QIcon:
+    """Cria o ícone da bandeja a partir de assets/miniature.png reagindo dinamicamente à cor da barra de tarefas."""
+    is_light = is_windows_taskbar_light()
+    color = QtGui.QColor("#18181B") if is_light else QtGui.QColor("#FFFFFF")
 
-    painter.setPen(QtGui.QPen(QtGui.QColor(180, 185, 195), 2))
-    painter.drawLine(15, 30, 49, 30)
+    orig_path = get_resource_path(os.path.join("assets", "miniature.png"))
+    if not os.path.exists(orig_path):
+        return QtGui.QIcon(load_user_icon("eco.png", 24, 24, color="#FFFFFF"))
 
-    pen_air = QtGui.QPen(QtGui.QColor(56, 189, 248), 2.5)
-    pen_air.setCapStyle(QtCore.Qt.PenCapStyle.RoundCap)
-    painter.setPen(pen_air)
-    painter.drawLine(18, 38, 18, 46)
-    painter.drawLine(28, 38, 28, 49)
-    painter.drawLine(36, 38, 36, 49)
-    painter.drawLine(46, 38, 46, 46)
-    painter.end()
-    return pixmap
+    orig = QtGui.QPixmap(orig_path)
+    result = QtGui.QPixmap(orig.size())
+    result.fill(QtCore.Qt.GlobalColor.transparent)
+
+    p = QtGui.QPainter(result)
+    p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+    p.setRenderHint(QtGui.QPainter.RenderHint.SmoothPixmapTransform)
+    p.drawPixmap(0, 0, orig)
+    p.setCompositionMode(QtGui.QPainter.CompositionMode.CompositionMode_SourceIn)
+    p.fillRect(result.rect(), color)
+    p.end()
+
+    icon = QtGui.QIcon()
+    for size in [16, 20, 24, 32, 48]:
+        scaled = result.scaled(
+            size, size,
+            QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+            QtCore.Qt.TransformationMode.SmoothTransformation
+        )
+        icon.addPixmap(scaled)
+
+    return icon
 
 
 class TrayApplication:
@@ -1603,8 +1661,14 @@ class TrayApplication:
 
         self.window = FullTrayWindow()
 
-        self.tray = QtWidgets.QSystemTrayIcon(QtGui.QIcon(create_tray_icon_pixmap()), self.app)
+        self.tray = QtWidgets.QSystemTrayIcon(create_tray_icon(), self.app)
         self.tray.setToolTip("LG Dual Inverter - Ar Condicionado")
+
+        self._current_theme_is_light = is_windows_taskbar_light()
+        self._theme_timer = QtCore.QTimer(self.app)
+        self._theme_timer.setInterval(4000)
+        self._theme_timer.timeout.connect(self._check_taskbar_theme)
+        self._theme_timer.start()
 
         menu = QtWidgets.QMenu()
         menu.setStyleSheet("""
@@ -1627,12 +1691,31 @@ class TrayApplication:
         m_open = menu.addAction("Abrir Painel")
         m_open.triggered.connect(self.toggle)
         menu.addSeparator()
+
+        self.action_autostart = menu.addAction("Iniciar com o Windows")
+        self.action_autostart.setCheckable(True)
+        self.action_autostart.setChecked(is_autostart_enabled())
+        self.action_autostart.triggered.connect(self._toggle_autostart)
+
+        menu.addSeparator()
         m_quit = menu.addAction("Sair")
         m_quit.triggered.connect(self.quit)
         self.tray.setContextMenu(menu)
 
         self.tray.activated.connect(self.on_activated)
         self.tray.show()
+
+    def _check_taskbar_theme(self):
+        is_light = is_windows_taskbar_light()
+        if is_light != self._current_theme_is_light:
+            self._current_theme_is_light = is_light
+            self.tray.setIcon(create_tray_icon())
+
+    def _toggle_autostart(self):
+        new_state = self.action_autostart.isChecked()
+        success = set_autostart_enabled(new_state)
+        if not success:
+            self.action_autostart.setChecked(not new_state)
 
     def on_activated(self, reason):
         if reason in (QtWidgets.QSystemTrayIcon.ActivationReason.Trigger, QtWidgets.QSystemTrayIcon.ActivationReason.DoubleClick):
@@ -1646,6 +1729,8 @@ class TrayApplication:
 
     def quit(self):
         try:
+            if hasattr(self, '_theme_timer'):
+                self._theme_timer.stop()
             self.window.panel.cleanup()
         except Exception:
             pass
@@ -1658,5 +1743,7 @@ class TrayApplication:
 
 if __name__ == "__main__":
     app_instance = TrayApplication()
-    QtCore.QTimer.singleShot(350, app_instance.window.show_popup)
+    # Se iniciado no boot do Windows (--silent), permanece silencioso na bandeja
+    if "--silent" not in sys.argv and "--minimized" not in sys.argv:
+        QtCore.QTimer.singleShot(350, app_instance.window.show_popup)
     sys.exit(app_instance.run())
