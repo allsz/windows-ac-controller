@@ -53,6 +53,99 @@ SVG_SLIDERS = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" wid
   <circle cx="17" cy="18" r="2.5" fill="#0D0E12" stroke="currentColor" stroke-width="1.8" />
 </svg>"""
 
+TRANSLATIONS = {
+    "en": {
+        "room": "Room",
+        "mode": "Mode",
+        "fan_speed": "Fan speed",
+        "sleep": "Sleep",
+        "airflow": "Airflow",
+        "connected": "Connected",
+        "syncing": "Syncing...",
+        "disconnected": "Disconnected",
+        "Cool": "Cool",
+        "Heat": "Heat",
+        "Fan": "Fan",
+        "Dry": "Dry",
+        "Auto": "Auto",
+        "Low": "Low",
+        "Mid": "Mid",
+        "High": "High",
+        "Off": "Off",
+        "Vertical": "Vertical",
+        "Swing": "Swing",
+        "settings": "Settings",
+        "temp_unit": "Temperature Unit",
+        "celsius": "Celsius (°C)",
+        "fahrenheit": "Fahrenheit (°F)",
+        "language": "Language",
+        "sync_thinq": "Sync with LG ThinQ",
+        "autostart": "Start with Windows",
+        "open_panel": "Open Panel",
+        "quit": "Quit",
+    },
+    "pt": {
+        "room": "Ambiente",
+        "mode": "Modo",
+        "fan_speed": "Velocidade",
+        "sleep": "Timer",
+        "airflow": "Direção",
+        "connected": "Conectado",
+        "syncing": "Sincronizando...",
+        "disconnected": "Desconectado",
+        "Cool": "Frio",
+        "Heat": "Quente",
+        "Fan": "Ventilar",
+        "Dry": "Desumidificar",
+        "Auto": "Auto",
+        "Low": "Baixa",
+        "Mid": "Média",
+        "High": "Alta",
+        "Off": "Desligado",
+        "Vertical": "Fixo",
+        "Swing": "Oscilar",
+        "settings": "Configurações",
+        "temp_unit": "Unidade de Temperatura",
+        "celsius": "Celsius (°C)",
+        "fahrenheit": "Fahrenheit (°F)",
+        "language": "Idioma",
+        "sync_thinq": "Sincronizar com LG ThinQ",
+        "autostart": "Iniciar com o Windows",
+        "open_panel": "Abrir Painel",
+        "quit": "Sair",
+    },
+    "es": {
+        "room": "Ambiente",
+        "mode": "Modo",
+        "fan_speed": "Velocidad",
+        "sleep": "Temporizador",
+        "airflow": "Dirección",
+        "connected": "Conectado",
+        "syncing": "Sincronizando...",
+        "disconnected": "Desconectado",
+        "Cool": "Frío",
+        "Heat": "Calor",
+        "Fan": "Ventilador",
+        "Dry": "Deshumidificar",
+        "Auto": "Auto",
+        "Low": "Baja",
+        "Mid": "Media",
+        "High": "Alta",
+        "Off": "Apagado",
+        "Vertical": "Fijo",
+        "Swing": "Oscilar",
+        "settings": "Configuraciones",
+        "temp_unit": "Unidad de Temperatura",
+        "celsius": "Celsius (°C)",
+        "fahrenheit": "Fahrenheit (°F)",
+        "language": "Idioma",
+        "sync_thinq": "Sincronizar com LG ThinQ",
+        "autostart": "Iniciar con Windows",
+        "open_panel": "Abrir Panel",
+        "quit": "Salir",
+    }
+}
+
 
 def get_base_dir() -> str:
     """Retorna o diretório base da aplicação (local do executável ou script), onde o .env deve residir."""
@@ -103,7 +196,7 @@ def set_autostart_enabled(enabled: bool, app_name: str = "LGAirConditioner") -> 
         return False
 
 
-def load_user_svg(filename: str, width: int = 30, height: int = 30, padding: int = 1, color: str = "#FFFFFF") -> QtGui.QPixmap:
+def load_user_svg(filename: str, width: int = 30, height: int = 30, padding: float = 1.0, color: str = "#FFFFFF", stroke_width: float = 0.0) -> QtGui.QPixmap:
     """Carrega os arquivos SVG da pasta assets com cor branca pura (#FFFFFF) e dimensionamento proporcional"""
     path = get_resource_path(os.path.join("assets", filename))
     if not os.path.exists(path):
@@ -114,11 +207,12 @@ def load_user_svg(filename: str, width: int = 30, height: int = 30, padding: int
     with open(path, "r", encoding="utf-8") as f:
         svg = f.read()
 
-    # Garantir preenchimento branco puro em todos os caminhos
+    # Garantir preenchimento branco puro e traço encorpado se solicitado
+    stroke_attr = f' stroke="{color}" stroke-width="{stroke_width}" stroke-linejoin="round"' if stroke_width > 0 else ""
     if "fill=" not in svg:
-        svg = svg.replace("<path", f'<path fill="{color}"')
+        svg = svg.replace("<path", f'<path fill="{color}"{stroke_attr}')
     else:
-        svg = re.sub(r'fill="[^"]*"', f'fill="{color}"', svg)
+        svg = re.sub(r'fill="[^"]*"', f'fill="{color}"{stroke_attr}', svg)
 
     renderer = QtSvg.QSvgRenderer(QtCore.QByteArray(svg.encode("utf-8")))
     pix = QtGui.QPixmap(width, height)
@@ -208,26 +302,47 @@ def svg_to_pixmap(svg_text: str, width: int = 24, height: int = 24, color: str =
     return pix
 
 
+def create_dot_pixmap(diameter: int = 6, color_hex: str = ACCENT_GREEN) -> QtGui.QPixmap:
+    """Gera um círculo antialiasing nítido para o indicador de status de conexão"""
+    scale = 3
+    size = diameter * scale
+    pix = QtGui.QPixmap(size, size)
+    pix.fill(QtCore.Qt.GlobalColor.transparent)
+    p = QtGui.QPainter(pix)
+    p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+    p.setPen(QtCore.Qt.PenStyle.NoPen)
+    p.setBrush(QtGui.QBrush(QtGui.QColor(color_hex)))
+    p.drawEllipse(0, 0, size, size)
+    p.end()
+    return pix.scaled(
+        diameter, diameter,
+        QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+        QtCore.Qt.TransformationMode.SmoothTransformation
+    )
+
+
 class AnimatedAirCurtainHero(QtWidgets.QWidget):
-    """Widget Hero: Ar Condicionado Split com Cortina de Vento Alinhada e Fluida"""
+    """Widget Hero: Ar Condicionado Split com Cortina de Vento e Aleta Estática"""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setFixedHeight(185)
-        self.is_powered_on = True
+        self.is_powered_on = False
         self.current_mode = "Cool"
         self._phase = 0.0
         self._wind_alpha = 1.0
 
-        img_path = get_resource_path(os.path.join("assets", "ac_unit_pure.png"))
-        if not os.path.exists(img_path):
-            img_path = get_resource_path(os.path.join("assets", "ac_unit_nobg.png"))
+        path_closed = get_resource_path(os.path.join("assets", "ac_unit_pure.png"))
+        if not os.path.exists(path_closed):
+            path_closed = get_resource_path(os.path.join("assets", "ac_unit_nobg.png"))
 
-        self.ac_pixmap = QtGui.QPixmap(img_path)
+        path_open = get_resource_path(os.path.join("assets", "ac_unit_open.png"))
+        self.pix_closed = QtGui.QPixmap(path_closed)
+        self.pix_open = QtGui.QPixmap(path_open) if os.path.exists(path_open) else self.pix_closed
+        self.ac_pixmap = self.pix_closed
 
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self._step)
         self.timer.setInterval(33)
-        self.timer.start()
 
     def set_power(self, power: bool):
         self.is_powered_on = power
@@ -244,6 +359,10 @@ class AnimatedAirCurtainHero(QtWidgets.QWidget):
         self.current_mode = mode
         self.update()
 
+    def set_airflow(self, airflow: str):
+        # Aleta mantida estática conforme solicitado (sem animações da aleta no modo swing)
+        self.update()
+
     def showEvent(self, event):
         super().showEvent(event)
         if self.is_powered_on and not self.timer.isActive():
@@ -255,11 +374,11 @@ class AnimatedAirCurtainHero(QtWidgets.QWidget):
 
     def _step(self):
         if not self.is_powered_on:
-            self._wind_alpha = 0.0
             self.timer.stop()
             self.update()
             return
 
+        # Animação da cortina fluida de ar
         self._phase += 0.035
         if self._phase > 2 * math.pi * 100:
             self._phase = 0.0
@@ -273,19 +392,32 @@ class AnimatedAirCurtainHero(QtWidgets.QWidget):
 
         w = self.width()
         ac_w = 192
-        if not self.ac_pixmap.isNull():
-            ac_h = int(ac_w * (self.ac_pixmap.height() / self.ac_pixmap.width()))
+        if not self.pix_closed.isNull():
+            ac_h = int(ac_w * (self.pix_closed.height() / self.pix_closed.width()))
         else:
             ac_h = 124
 
         ac_x = (w - ac_w) // 2
         ac_y = 6
 
-        if self._wind_alpha > 0.005:
-            self._draw_air_curtain(p, ac_x, ac_y, ac_w, ac_h)
+        # ESTADO 1: DESLIGADO (OFF)
+        # Aleta fechada e rente ao chassi, sem fluxo de ar
+        if not self.is_powered_on:
+            if not self.pix_closed.isNull():
+                p.drawPixmap(ac_x, ac_y, ac_w, ac_h, self.pix_closed)
+            p.end()
+            return
 
-        if not self.ac_pixmap.isNull():
-            p.drawPixmap(ac_x, ac_y, ac_w, ac_h, self.ac_pixmap)
+        # ESTADO 2: LIGADO (ON)
+        # 1. Cortina de ar fluindo sob o aparelho
+        self._draw_air_curtain(p, ac_x, ac_y, ac_w, ac_h)
+
+        # 2. Aleta aberta estática e sólida
+        if not self.pix_open.isNull():
+            h_open = int(ac_w * (self.pix_open.height() / self.pix_open.width()))
+            p.drawPixmap(ac_x, ac_y, ac_w, h_open, self.pix_open)
+        elif not self.pix_closed.isNull():
+            p.drawPixmap(ac_x, ac_y, ac_w, ac_h, self.pix_closed)
 
         p.end()
 
@@ -598,7 +730,7 @@ class ModernTrackSlider(QtWidgets.QSlider):
 
     def _update_from_x(self, x):
         w = float(self.width())
-        pill_w = 40.0
+        pill_w = 24.0
         pad = 2.0
         min_x = pad
         max_x = w - pill_w - pad
@@ -628,8 +760,8 @@ class ModernTrackSlider(QtWidgets.QSlider):
         p.setBrush(QtGui.QBrush(QtGui.QColor("#181A22")))
         p.drawRoundedRect(track_rect, radius, radius)
 
-        # 2. Pill Position
-        pill_w = 40.0
+        # 2. Pill Position (Circle: 24x24)
+        pill_w = 24.0
         pill_h = 24.0
         pad = 2.0
         min_x = pad
@@ -637,8 +769,8 @@ class ModernTrackSlider(QtWidgets.QSlider):
         pill_x = min_x + self._visual_ratio * (max_x - min_x)
         pill_y = (h - pill_h) / 2.0
 
-        # 3. Active Gradient (Envelops the pill: ends slightly ahead of the pill)
-        grad_end_x = min(w, pill_x + pill_w + 6.0)
+        # 3. Active Gradient (Concentric with pill: ends exactly pad px ahead of pill)
+        grad_end_x = min(w, pill_x + pill_w + pad)
 
         track_path = QtGui.QPainterPath()
         track_path.addRoundedRect(track_rect, radius, radius)
@@ -657,12 +789,12 @@ class ModernTrackSlider(QtWidgets.QSlider):
         p.drawRoundedRect(grad_rect, radius, radius)
         p.restore()
 
-        # 4. Pill (Handle)
+        # 4. Pill (Handle: Circle)
         pill_rect = QtCore.QRectF(pill_x, pill_y, pill_w, pill_h)
         pill_col = QtGui.QColor("#EDE4DC" if (self._hovered or self._dragging) else "#D4C5B9")
         p.setPen(QtCore.Qt.PenStyle.NoPen)
         p.setBrush(QtGui.QBrush(pill_col))
-        p.drawRoundedRect(pill_rect, 12.0, 12.0)
+        p.drawEllipse(pill_rect)
 
         p.end()
 
@@ -734,12 +866,13 @@ class ControlCard(QtWidgets.QFrame):
 
     def _init_icons(self):
         if self.key == "mode":
-            pix = load_user_svg("mode.svg", 30, 30, padding=1, color="#FFFFFF")
+            # Padding 2.5 para harmonizar a escala do floco com a altura de 24px dos demais ícones
+            pix = load_user_svg("mode.svg", 30, 30, padding=2.5, color="#FFFFFF")
             self.icon_label.setPixmap(pix)
 
         elif self.key == "fan":
-            # Fan speed: Rotação horária suave no hover ou quando o modo estiver selecionado
-            self.fan_base_pixmap = load_user_svg("fan-speed.svg", 30, 30, padding=1, color="#FFFFFF")
+            # Fan speed: Traço encorpado (stroke_width=1.4) para manter branco puro e rotação suave
+            self.fan_base_pixmap = load_user_svg("fan-speed.svg", 30, 30, padding=1.0, color="#FFFFFF", stroke_width=1.4)
             self.icon_label.setPixmap(self.fan_base_pixmap)
             self._fan_angle = 0.0
             self._fan_timer = QtCore.QTimer(self)
@@ -829,6 +962,10 @@ class ControlCard(QtWidgets.QFrame):
         self._check_airflow_animation()
         super().leaveEvent(event)
 
+    def set_title(self, new_title: str):
+        self.title_text = new_title
+        self.title_label.setText(new_title)
+
     def set_value(self, new_val: str):
         self.value_text = new_val
         self.value_label.setText(new_val)
@@ -912,10 +1049,15 @@ class OptionsDrawer(QtWidgets.QFrame):
             if w:
                 w.deleteLater()
 
-        for opt in options:
-            btn = QtWidgets.QPushButton(opt)
+        for item in options:
+            if isinstance(item, tuple):
+                canonical_key, label = item
+            else:
+                canonical_key = label = item
+
+            btn = QtWidgets.QPushButton(label)
             btn.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
-            is_active = (opt.lower() == selected_value.lower())
+            is_active = (canonical_key.lower() == selected_value.lower())
 
             bg = "#272B38" if is_active else "#181A22"
             col = "#38BDF8" if is_active else "#E2E8F0"
@@ -937,7 +1079,7 @@ class OptionsDrawer(QtWidgets.QFrame):
                     color: #FFFFFF;
                 }}
             """)
-            btn.clicked.connect(lambda checked=False, o=opt, c=category: self._on_opt_click(c, o))
+            btn.clicked.connect(lambda checked=False, k=canonical_key, c=category: self._on_opt_click(c, k))
             self.layout.addWidget(btn)
 
         self.setVisible(True)
@@ -969,6 +1111,7 @@ class OptionsDrawer(QtWidgets.QFrame):
 
 class ThinQWorker(QtCore.QThread):
     status_updated = QtCore.Signal(dict)
+    sync_failed = QtCore.Signal()
 
     def run(self):
         try:
@@ -984,6 +1127,7 @@ class ThinQWorker(QtCore.QThread):
             client_id = os.getenv("THINQ_CLIENT_ID", "windows_ac_tray_app")
             device_id = os.getenv("THINQ_DEVICE_ID", "947e6dea7dd7be07c5e1b7821664f80c1db9845fbf75d6d4f33c60d206d7ab3a")
             if not pat:
+                self.sync_failed.emit()
                 return
 
             import asyncio
@@ -1003,8 +1147,11 @@ class ThinQWorker(QtCore.QThread):
             if data and isinstance(data, dict):
                 print(f"[ThinQ] Status atualizado com sucesso do aparelho.", flush=True)
                 self.status_updated.emit(data)
+            else:
+                self.sync_failed.emit()
         except Exception as e:
             print("[ThinQ Status Error]:", e, flush=True)
+            self.sync_failed.emit()
 
 
 class ThinQCommandWorker(QtCore.QThread):
@@ -1060,10 +1207,22 @@ class ACPanelWidget(QtWidgets.QFrame):
     temp_changed = QtCore.Signal(float)
     eco_toggled = QtCore.Signal(bool)
     option_changed = QtCore.Signal(str, str)
+    language_changed = QtCore.Signal(str)
+    temp_unit_changed = QtCore.Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("ACPanel")
+
+        prefs = QtCore.QSettings("LGAirConditioner", "Preferences")
+        self.language = str(prefs.value("language", "en"))
+        if self.language not in TRANSLATIONS:
+            self.language = "en"
+        self.temp_unit = str(prefs.value("temp_unit", "C"))
+        if self.temp_unit not in ["C", "F"]:
+            self.temp_unit = "C"
+        self._menu_open = False
+        self.connection_status = "connected"
 
         self.is_powered_on = False  # Começa seguro e sincroniza imediatamente com o estado real do aparelho
         self.room_temp = 22.5
@@ -1090,6 +1249,175 @@ class ACPanelWidget(QtWidgets.QFrame):
 
         self.setFixedWidth(450)
         self._build_ui()
+
+    def tr_text(self, key: str) -> str:
+        lang_dict = TRANSLATIONS.get(self.language, TRANSLATIONS["en"])
+        return lang_dict.get(key, TRANSLATIONS["en"].get(key, key))
+
+    def set_connection_status(self, status: str):
+        """Atualiza a cor do círculo indicador (6px) e o texto de conexão"""
+        self.connection_status = status
+        color_map = {
+            "connected": ACCENT_GREEN,
+            "syncing": ACCENT_ORANGE,
+            "disconnected": "#F87171"
+        }
+        col = color_map.get(status, ACCENT_GREEN)
+        if hasattr(self, 'status_dot'):
+            self.status_dot.setPixmap(create_dot_pixmap(6, col))
+        if hasattr(self, 'lbl_conn'):
+            self.lbl_conn.setText(self.tr_text(status))
+
+    def set_temp_unit(self, unit: str):
+        if unit not in ["C", "F"] or self.temp_unit == unit:
+            return
+        self.temp_unit = unit
+        prefs = QtCore.QSettings("LGAirConditioner", "Preferences")
+        prefs.setValue("temp_unit", unit)
+        self.temp_unit_changed.emit(unit)
+        self.update_ui_texts()
+
+    def set_language(self, lang: str):
+        if lang not in TRANSLATIONS or self.language == lang:
+            return
+        self.language = lang
+        prefs = QtCore.QSettings("LGAirConditioner", "Preferences")
+        prefs.setValue("language", lang)
+        self.language_changed.emit(lang)
+        self.update_ui_texts()
+
+    def update_ui_texts(self):
+        # 1. Room temp
+        if self.temp_unit == "F":
+            f_room = int(round(self.room_temp * 1.8 + 32))
+            self.lbl_room_temp.setText(f"{self.tr_text('room')}  <b>{f_room}°F</b>")
+        else:
+            self.lbl_room_temp.setText(f"{self.tr_text('room')}  <b>{int(round(self.room_temp))}°C</b>")
+
+        # 2. Target temp & unit
+        if self.temp_unit == "F":
+            f_target = int(round(self.target_temp * 1.8 + 32))
+            self.lbl_target_num.setText(str(f_target))
+            self.lbl_target_unit.setText("°F")
+            self.lbl_slider_min.setText(f"{int(round(18 * 1.8 + 32))}°")
+            self.lbl_slider_max.setText(f"{int(round(30 * 1.8 + 32))}°")
+        else:
+            self.lbl_target_num.setText(str(int(self.target_temp)))
+            self.lbl_target_unit.setText("°C")
+            self.lbl_slider_min.setText("18°")
+            self.lbl_slider_max.setText("30°")
+
+        # 3. Cards
+        self.card_mode.set_title(self.tr_text("mode"))
+        self.card_mode.set_value(self.tr_text(self.current_mode))
+
+        self.card_fan.set_title(self.tr_text("fan_speed"))
+        self.card_fan.set_value(self.tr_text(self.fan_speed))
+
+        self.card_sleep.set_title(self.tr_text("sleep"))
+        self.card_sleep.set_value(self.tr_text(self.sleep_state))
+
+        self.card_airflow.set_title(self.tr_text("airflow"))
+        self.card_airflow.set_value(self.tr_text(self.airflow_state))
+
+        # 4. Footer & Tooltip
+        self.set_connection_status(getattr(self, 'connection_status', 'connected'))
+        self.btn_settings.setToolTip(self.tr_text("settings"))
+
+        # 5. Refresh drawer if active
+        if self.drawer.isVisible() and self.drawer.current_category:
+            cat = self.drawer.current_category
+            options_map = {
+                "mode": (["Cool", "Heat", "Fan", "Dry"], self.current_mode),
+                "fan": (["Auto", "Low", "Mid", "High"], self.fan_speed),
+                "sleep": (["Off", "1h", "2h", "4h", "8h"], self.sleep_state),
+                "airflow": (["Vertical", "Swing"], self.airflow_state)
+            }
+            opts, sel = options_map.get(cat, ([], ""))
+            translated_opts = [(opt, self.tr_text(opt)) for opt in opts]
+            self.drawer.show_category(cat, translated_opts, sel)
+
+    def _open_settings_menu(self):
+        self._menu_open = True
+        menu = QtWidgets.QMenu(self)
+        menu.setStyleSheet("""
+            QMenu {
+                background-color: #181920;
+                color: #FFFFFF;
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                border-radius: 12px;
+                padding: 6px;
+                font-family: 'Segoe UI', sans-serif;
+                font-size: 13px;
+            }
+            QMenu::item {
+                padding: 7px 24px 7px 14px;
+                border-radius: 6px;
+            }
+            QMenu::item:selected {
+                background-color: #272A36;
+                color: #38BDF8;
+            }
+            QMenu::separator {
+                height: 1px;
+                background-color: rgba(255, 255, 255, 0.08);
+                margin: 4px 6px;
+            }
+        """)
+
+        # 1. Unidade de Temperatura
+        menu_unit = menu.addMenu(self.tr_text("temp_unit"))
+        menu_unit.setStyleSheet(menu.styleSheet())
+        act_c = menu_unit.addAction(self.tr_text("celsius"))
+        act_c.setCheckable(True)
+        act_c.setChecked(self.temp_unit == "C")
+        act_c.triggered.connect(lambda: self.set_temp_unit("C"))
+
+        act_f = menu_unit.addAction(self.tr_text("fahrenheit"))
+        act_f.setCheckable(True)
+        act_f.setChecked(self.temp_unit == "F")
+        act_f.triggered.connect(lambda: self.set_temp_unit("F"))
+
+        # 2. Idioma / Language
+        menu_lang = menu.addMenu(self.tr_text("language"))
+        menu_lang.setStyleSheet(menu.styleSheet())
+        act_en = menu_lang.addAction("English")
+        act_en.setCheckable(True)
+        act_en.setChecked(self.language == "en")
+        act_en.triggered.connect(lambda: self.set_language("en"))
+
+        act_pt = menu_lang.addAction("Português (Brasil)")
+        act_pt.setCheckable(True)
+        act_pt.setChecked(self.language == "pt")
+        act_pt.triggered.connect(lambda: self.set_language("pt"))
+
+        act_es = menu_lang.addAction("Español")
+        act_es.setCheckable(True)
+        act_es.setChecked(self.language == "es")
+        act_es.triggered.connect(lambda: self.set_language("es"))
+
+        menu.addSeparator()
+
+        # 3. Sincronizar com ThinQ
+        act_sync = menu.addAction(self.tr_text("sync_thinq"))
+        act_sync.triggered.connect(self.refresh_status_from_thinq)
+
+        menu.addSeparator()
+
+        # 4. Iniciar com o Windows
+        act_autostart = menu.addAction(self.tr_text("autostart"))
+        act_autostart.setCheckable(True)
+        act_autostart.setChecked(is_autostart_enabled())
+        act_autostart.triggered.connect(lambda: set_autostart_enabled(act_autostart.isChecked()))
+
+        btn_pos = self.btn_settings.mapToGlobal(QtCore.QPoint(0, 0))
+        size_hint = menu.sizeHint()
+        popup_x = btn_pos.x() + self.btn_settings.width() - size_hint.width()
+        popup_y = btn_pos.y() - size_hint.height() - 6
+        menu.exec(QtCore.QPoint(max(10, popup_x), max(10, popup_y)))
+        self._menu_open = False
+        if self.window():
+            self.window().activateWindow()
 
     def _build_ui(self):
         layout = QtWidgets.QVBoxLayout(self)
@@ -1149,6 +1477,7 @@ class ACPanelWidget(QtWidgets.QFrame):
         self.ac_hero = AnimatedAirCurtainHero(self)
         self.ac_hero.set_power(self.is_powered_on)
         self.ac_hero.set_mode(self.current_mode)
+        self.ac_hero.set_airflow(self.airflow_state)
         layout.addWidget(self.ac_hero)
 
         # -------------------------------------------------------------
@@ -1172,36 +1501,33 @@ class ACPanelWidget(QtWidgets.QFrame):
         temp_eco_row.addLayout(temp_box)
         temp_eco_row.addStretch()
 
-        # Eco Mode: Card unificado com folha preenchida sólida e corte da nervura central (leaf.fill)
+        # Eco Mode: Card compacto com asset eco_mode.png e switch animado
         eco_card = QtWidgets.QFrame()
         eco_card.setObjectName("EcoCard")
+        eco_card.setSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         eco_card.setStyleSheet(f"""
             QFrame#EcoCard {{
                 background-color: #171920;
                 border: 1px solid {BORDER_COLOR};
-                border-radius: 20px;
+                border-radius: 17px;
             }}
         """)
         eco_layout = QtWidgets.QHBoxLayout(eco_card)
-        eco_layout.setContentsMargins(14, 8, 14, 8)
-        eco_layout.setSpacing(10)
+        eco_layout.setContentsMargins(10, 5, 10, 5)
+        eco_layout.setSpacing(8)
 
-        leaf_icon = QtWidgets.QLabel()
-        leaf_icon.setFixedSize(24, 24)
-        leaf_icon.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        leaf_icon.setPixmap(load_user_icon("eco.png", 24, 24, color="#FFFFFF"))
-        eco_layout.addWidget(leaf_icon)
-
-        eco_lbl = QtWidgets.QLabel("Eco Mode")
-        eco_lbl.setStyleSheet("color: #FFFFFF; font-size: 13px; font-weight: 600; font-family: 'Segoe UI', sans-serif;")
-        eco_layout.addWidget(eco_lbl)
+        eco_icon = QtWidgets.QLabel()
+        eco_icon.setFixedSize(24, 24)
+        eco_icon.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        eco_icon.setPixmap(load_user_icon("eco_mode.png", 24, 24, color="#FFFFFF"))
+        eco_layout.addWidget(eco_icon)
 
         self.toggle_eco = AnimatedToggle()
         self.toggle_eco.setChecked(self.eco_mode)
         self.toggle_eco.stateChanged.connect(self._eco_state_changed)
         eco_layout.addWidget(self.toggle_eco)
 
-        temp_eco_row.addWidget(eco_card)
+        temp_eco_row.addWidget(eco_card, 0, QtCore.Qt.AlignmentFlag.AlignVCenter)
         layout.addLayout(temp_eco_row)
 
         # -------------------------------------------------------------
@@ -1262,13 +1588,13 @@ class ACPanelWidget(QtWidgets.QFrame):
 
         limits_row = QtWidgets.QHBoxLayout()
         limits_row.setContentsMargins(50, 0, 50, 0)
-        lbl_min = QtWidgets.QLabel("18°")
-        lbl_min.setStyleSheet("color: #64748B; font-size: 11px; font-weight: 500;")
-        limits_row.addWidget(lbl_min)
+        self.lbl_slider_min = QtWidgets.QLabel("18°")
+        self.lbl_slider_min.setStyleSheet("color: #64748B; font-size: 11px; font-weight: 500;")
+        limits_row.addWidget(self.lbl_slider_min)
         limits_row.addStretch()
-        lbl_max = QtWidgets.QLabel("30°")
-        lbl_max.setStyleSheet("color: #64748B; font-size: 11px; font-weight: 500;")
-        limits_row.addWidget(lbl_max)
+        self.lbl_slider_max = QtWidgets.QLabel("30°")
+        self.lbl_slider_max.setStyleSheet("color: #64748B; font-size: 11px; font-weight: 500;")
+        limits_row.addWidget(self.lbl_slider_max)
         slider_container.addLayout(limits_row)
 
         layout.addLayout(slider_container)
@@ -1313,32 +1639,33 @@ class ACPanelWidget(QtWidgets.QFrame):
         footer.setContentsMargins(2, 4, 2, 0)
 
         status_box = QtWidgets.QHBoxLayout()
-        status_box.setSpacing(6)
+        status_box.setSpacing(7)
 
-        shield_icon = QtWidgets.QLabel()
-        shield_icon.setFixedSize(16, 16)
-        shield_icon.setPixmap(svg_to_pixmap(SVG_SHIELD, 16, 16, ACCENT_GREEN))
-        status_box.addWidget(shield_icon)
+        self.status_dot = QtWidgets.QLabel()
+        self.status_dot.setFixedSize(6, 6)
+        self.status_dot.setPixmap(create_dot_pixmap(6, ACCENT_GREEN))
+        status_box.addWidget(self.status_dot, 0, QtCore.Qt.AlignmentFlag.AlignVCenter)
 
-        lbl_conn = QtWidgets.QLabel("Connected")
-        lbl_conn.setStyleSheet("color: #94A3B8; font-size: 12px; font-weight: 500;")
-        status_box.addWidget(lbl_conn)
+        self.lbl_conn = QtWidgets.QLabel("Connected")
+        self.lbl_conn.setStyleSheet("color: #94A3B8; font-size: 12px; font-weight: 500;")
+        status_box.addWidget(self.lbl_conn, 0, QtCore.Qt.AlignmentFlag.AlignVCenter)
 
         footer.addLayout(status_box)
         footer.addStretch()
 
-        btn_settings = QtWidgets.QPushButton()
-        btn_settings.setFixedSize(28, 28)
-        btn_settings.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
-        btn_settings.setIcon(QtGui.QIcon(svg_to_pixmap(SVG_SLIDERS, 20, 20, "#94A3B8")))
-        btn_settings.setIconSize(QtCore.QSize(20, 20))
-        btn_settings.setToolTip("Sincronizar status com LG ThinQ")
-        btn_settings.setStyleSheet("QPushButton { background: transparent; border: none; } QPushButton:hover { opacity: 0.8; }")
-        btn_settings.clicked.connect(self.refresh_status_from_thinq)
-        footer.addWidget(btn_settings)
+        self.btn_settings = QtWidgets.QPushButton()
+        self.btn_settings.setFixedSize(28, 28)
+        self.btn_settings.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        self.btn_settings.setIcon(QtGui.QIcon(svg_to_pixmap(SVG_SLIDERS, 20, 20, "#94A3B8")))
+        self.btn_settings.setIconSize(QtCore.QSize(20, 20))
+        self.btn_settings.setToolTip("Settings")
+        self.btn_settings.setStyleSheet("QPushButton { background: transparent; border: none; } QPushButton:hover { opacity: 0.8; }")
+        self.btn_settings.clicked.connect(self._open_settings_menu)
+        footer.addWidget(self.btn_settings)
 
         layout.addLayout(footer)
         self.set_power(self.is_powered_on)
+        self.update_ui_texts()
 
     def _toggle_category(self, cat: str):
         if self.drawer.current_category == cat:
@@ -1357,7 +1684,8 @@ class ACPanelWidget(QtWidgets.QFrame):
         }
 
         opts, sel = options_map.get(cat, ([], ""))
-        self.drawer.show_category(cat, opts, sel)
+        translated_opts = [(opt, self.tr_text(opt)) for opt in opts]
+        self.drawer.show_category(cat, translated_opts, sel)
 
     def _set_card_expanded(self, cat: str, expanded: bool):
         card_map = {
@@ -1374,20 +1702,20 @@ class ACPanelWidget(QtWidgets.QFrame):
         self._set_card_expanded(category, False)
         if category == "mode":
             self.current_mode = option
-            self.card_mode.set_value(option)
+            self.card_mode.set_value(self.tr_text(option))
             self.ac_hero.set_mode(option)
             mode_map = {"Cool": "COOL", "Heat": "HEAT", "Fan": "FAN", "Dry": "AIR_DRY"}
             if option in mode_map:
                 self._send_thinq_command({"airConJobMode": {"currentJobMode": mode_map[option]}})
         elif category == "fan":
             self.fan_speed = option
-            self.card_fan.set_value(option)
+            self.card_fan.set_value(self.tr_text(option))
             fan_map = {"Auto": "AUTO", "Low": "LOW", "Mid": "MID", "High": "HIGH"}
             if option in fan_map:
                 self._send_thinq_command({"airFlow": {"windStrength": fan_map[option]}})
         elif category == "sleep":
             self.sleep_state = option
-            self.card_sleep.set_value(option)
+            self.card_sleep.set_value(self.tr_text(option))
             if option == "Off":
                 self._send_thinq_command({"sleepTimer": {"relativeStopTimer": "UNSET"}})
             else:
@@ -1398,7 +1726,8 @@ class ACPanelWidget(QtWidgets.QFrame):
                     print("[Sleep Timer Error]:", e)
         elif category == "airflow":
             self.airflow_state = option
-            self.card_airflow.set_value(option)
+            self.card_airflow.set_value(self.tr_text(option))
+            self.ac_hero.set_airflow(option)
             is_swing = (option.lower() == "swing")
             self._send_thinq_command({"windDirection": {"rotateUpDown": is_swing}})
 
@@ -1406,8 +1735,10 @@ class ACPanelWidget(QtWidgets.QFrame):
 
     def refresh_status_from_thinq(self):
         """Consulta o status em tempo real do aparelho via nuvem LG ThinQ em segundo plano"""
+        self.set_connection_status("syncing")
         worker = ThinQWorker(self)
         worker.status_updated.connect(self._apply_thinq_status)
+        worker.sync_failed.connect(lambda: self.set_connection_status("disconnected"))
         self._active_workers.append(worker)
         worker.finished.connect(lambda: self._active_workers.remove(worker) if worker in self._active_workers else None)
         worker.start()
@@ -1434,31 +1765,39 @@ class ACPanelWidget(QtWidgets.QFrame):
             self.slider.blockSignals(True)
             self.slider.setValue(int(t))
             self.slider.blockSignals(False)
-            self.lbl_target_num.setText(str(int(t)))
+            if self.temp_unit == "F":
+                self.lbl_target_num.setText(str(int(round(t * 1.8 + 32))))
+            else:
+                self.lbl_target_num.setText(str(int(t)))
 
         if "currentTemperature" in temp:
             self.room_temp = float(temp["currentTemperature"])
-            self.lbl_room_temp.setText(f"Room  <b>{int(round(self.room_temp))}°C</b>")
+            if self.temp_unit == "F":
+                f_room = int(round(self.room_temp * 1.8 + 32))
+                self.lbl_room_temp.setText(f"{self.tr_text('room')}  <b>{f_room}°F</b>")
+            else:
+                self.lbl_room_temp.setText(f"{self.tr_text('room')}  <b>{int(round(self.room_temp))}°C</b>")
 
         mode = data.get("airConJobMode", {})
         job_mode = mode.get("currentJobMode")
         if job_mode:
             formatted = "Dry" if job_mode == "AIR_DRY" else job_mode.capitalize()
             self.current_mode = formatted
-            self.card_mode.set_value(formatted)
+            self.card_mode.set_value(self.tr_text(formatted))
             self.ac_hero.set_mode(formatted)
 
         flow = data.get("airFlow", {})
         wind = flow.get("windStrength")
         if wind:
             self.fan_speed = wind.capitalize()
-            self.card_fan.set_value(self.fan_speed)
+            self.card_fan.set_value(self.tr_text(self.fan_speed))
 
         swing = data.get("windDirection", {})
         if "rotateUpDown" in swing:
             is_swing = swing.get("rotateUpDown", False)
             self.airflow_state = "Swing" if is_swing else "Vertical"
-            self.card_airflow.set_value(self.airflow_state)
+            self.card_airflow.set_value(self.tr_text(self.airflow_state))
+            self.ac_hero.set_airflow(self.airflow_state)
 
         disp = data.get("display", {})
         if "light" in disp:
@@ -1473,10 +1812,12 @@ class ACPanelWidget(QtWidgets.QFrame):
             hrs = sleep.get("relativeHourToStop", 0)
             if hrs > 0:
                 self.sleep_state = f"{hrs}h"
-                self.card_sleep.set_value(self.sleep_state)
+                self.card_sleep.set_value(self.tr_text(self.sleep_state))
         elif sleep.get("relativeStopTimer") == "UNSET":
             self.sleep_state = "Off"
-            self.card_sleep.set_value("Off")
+            self.card_sleep.set_value(self.tr_text("Off"))
+
+        self.set_connection_status("connected")
 
     def set_power(self, power: bool):
         """Define o estado de energia em todos os componentes visuais"""
@@ -1502,7 +1843,10 @@ class ACPanelWidget(QtWidgets.QFrame):
 
     def _slider_changed(self, val):
         self.target_temp = float(val)
-        self.lbl_target_num.setText(str(val))
+        if self.temp_unit == "F":
+            self.lbl_target_num.setText(str(int(round(self.target_temp * 1.8 + 32))))
+        else:
+            self.lbl_target_num.setText(str(val))
         self.temp_changed.emit(self.target_temp)
         self._temp_debounce_timer.start()
 
@@ -1522,6 +1866,32 @@ class ACPanelWidget(QtWidgets.QFrame):
         self.eco_toggled.emit(self.eco_mode)
         # Modo Eco: desliga ou liga o visor do ar condicionado
         self._send_thinq_command({"display": {"light": "OFF" if self.eco_mode else "ON"}})
+
+    def mousePressEvent(self, event: QtGui.QMouseEvent):
+        if event.button() == QtCore.Qt.MouseButton.LeftButton:
+            win = self.window()
+            if isinstance(win, FullTrayWindow):
+                win._start_drag(event.globalPosition().toPoint())
+                event.accept()
+                return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event: QtGui.QMouseEvent):
+        win = self.window()
+        if isinstance(win, FullTrayWindow) and getattr(win, '_is_dragging', False):
+            if event.buttons() & QtCore.Qt.MouseButton.LeftButton:
+                win._do_drag(event.globalPosition().toPoint())
+                event.accept()
+                return
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
+        win = self.window()
+        if isinstance(win, FullTrayWindow) and getattr(win, '_is_dragging', False):
+            win._end_drag()
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
 
     def cleanup(self):
         """Encerra timers e threads ativas para fechamento limpo da aplicacao"""
@@ -1553,6 +1923,10 @@ class FullTrayWindow(QtWidgets.QWidget):
         )
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground, True)
 
+        self._is_dragging = False
+        self._drag_start_cursor = QtCore.QPoint()
+        self._drag_start_win = QtCore.QPoint()
+
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(14, 14, 14, 14)
 
@@ -1567,8 +1941,83 @@ class FullTrayWindow(QtWidgets.QWidget):
         main_layout.addWidget(self.panel)
         self.adjustSize()
 
+    def mousePressEvent(self, event: QtGui.QMouseEvent):
+        if event.button() == QtCore.Qt.MouseButton.LeftButton:
+            self._start_drag(event.globalPosition().toPoint())
+            event.accept()
+            return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event: QtGui.QMouseEvent):
+        if self._is_dragging and (event.buttons() & QtCore.Qt.MouseButton.LeftButton):
+            self._do_drag(event.globalPosition().toPoint())
+            event.accept()
+            return
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
+        if self._is_dragging:
+            self._end_drag()
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
+
+    def _start_drag(self, global_pos: QtCore.QPoint):
+        self._is_dragging = True
+        if hasattr(self, 'panel'):
+            self.panel._is_dragging = True
+        self._drag_start_cursor = global_pos
+        self._drag_start_win = self.pos()
+
+    def _do_drag(self, global_pos: QtCore.QPoint):
+        delta = global_pos - self._drag_start_cursor
+        target_pos = self._drag_start_win + delta
+
+        # Limitar o arraste para impedir que o aplicativo suma para fora do espaço de telas
+        screens = QtGui.QGuiApplication.screens()
+        if screens:
+            union_rect = screens[0].availableGeometry()
+            for s in screens[1:]:
+                union_rect = union_rect.united(s.availableGeometry())
+            w = self.width()
+            h = self.height()
+            # O topo não pode subir além do topo visível e deve sobrar área mínima para agarrar
+            clamped_x = max(union_rect.left() - w + 80, min(target_pos.x(), union_rect.right() - 80))
+            clamped_y = max(union_rect.top(), min(target_pos.y(), union_rect.bottom() - 80))
+            self.move(clamped_x, clamped_y)
+        else:
+            self.move(target_pos)
+
+    def _end_drag(self):
+        self._is_dragging = False
+        if hasattr(self, 'panel'):
+            self.panel._is_dragging = False
+
+        # Snap de segurança ao soltar: detecta em qual monitor o app foi largado e ajusta para ficar 100% visível
+        win_rect = self.frameGeometry()
+        best_screen = None
+        best_area = 0
+        for s in QtGui.QGuiApplication.screens():
+            inter = s.availableGeometry().intersected(win_rect)
+            area = inter.width() * inter.height()
+            if area > best_area:
+                best_area = area
+                best_screen = s
+
+        if not best_screen:
+            best_screen = QtGui.QGuiApplication.screenAt(QtGui.QCursor.pos()) or QtGui.QGuiApplication.primaryScreen()
+
+        if best_screen:
+            avail = best_screen.availableGeometry()
+            margin = 8
+            w = self.width()
+            h = self.height()
+            safe_x = max(avail.left() + margin, min(win_rect.x(), avail.right() - w - margin))
+            safe_y = max(avail.top() + margin, min(win_rect.y(), avail.bottom() - h - margin))
+            self.move(safe_x, safe_y)
+
     def reposition_smart(self):
-        screen = QtGui.QGuiApplication.primaryScreen()
+        screen = QtGui.QGuiApplication.screenAt(QtGui.QCursor.pos()) or QtGui.QGuiApplication.primaryScreen()
         avail = screen.availableGeometry()
         cursor = QtGui.QCursor.pos()
 
@@ -1594,12 +2043,12 @@ class FullTrayWindow(QtWidgets.QWidget):
 
     def changeEvent(self, event: QtCore.QEvent):
         if event.type() == QtCore.QEvent.Type.ActivationChange:
-            if not self.isActiveWindow():
+            if not self.isActiveWindow() and not getattr(self.panel, '_menu_open', False) and not self._is_dragging:
                 QtCore.QTimer.singleShot(140, self._check_hide)
         super().changeEvent(event)
 
     def _check_hide(self):
-        if not self.isActiveWindow():
+        if not self.isActiveWindow() and not getattr(self.panel, '_menu_open', False) and not self._is_dragging:
             self.hide()
 
 
@@ -1688,22 +2137,29 @@ class TrayApplication:
                 background-color: #27272A;
             }
         """)
-        m_open = menu.addAction("Abrir Painel")
-        m_open.triggered.connect(self.toggle)
+        self.m_open = menu.addAction(self.window.panel.tr_text("open_panel"))
+        self.m_open.triggered.connect(self.toggle)
         menu.addSeparator()
 
-        self.action_autostart = menu.addAction("Iniciar com o Windows")
+        self.action_autostart = menu.addAction(self.window.panel.tr_text("autostart"))
         self.action_autostart.setCheckable(True)
         self.action_autostart.setChecked(is_autostart_enabled())
         self.action_autostart.triggered.connect(self._toggle_autostart)
 
         menu.addSeparator()
-        m_quit = menu.addAction("Sair")
-        m_quit.triggered.connect(self.quit)
+        self.m_quit = menu.addAction(self.window.panel.tr_text("quit"))
+        self.m_quit.triggered.connect(self.quit)
         self.tray.setContextMenu(menu)
+
+        self.window.panel.language_changed.connect(self._update_tray_texts)
 
         self.tray.activated.connect(self.on_activated)
         self.tray.show()
+
+    def _update_tray_texts(self, lang: str):
+        self.m_open.setText(self.window.panel.tr_text("open_panel"))
+        self.action_autostart.setText(self.window.panel.tr_text("autostart"))
+        self.m_quit.setText(self.window.panel.tr_text("quit"))
 
     def _check_taskbar_theme(self):
         is_light = is_windows_taskbar_light()

@@ -4,6 +4,12 @@ Aplicativo moderno para a bandeja do sistema (System Tray) do Windows 11/10 para
 
 Desenvolvido em **Python 3.11+** com **PySide6 (Qt)**, inspirado nas diretrizes visuais do macOS e flyouts modernos do Windows 11 (Dark Glass, Glassmorphism e micro-animações a 60 FPS).
 
+<div align="center">
+  <img src="assets/app_mockup_off.png" width="380" alt="App Desligado" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="assets/app_mockup_on.png" width="380" alt="App Ligado" />
+</div>
+
 ---
 
 ## Recursos e Destaques
