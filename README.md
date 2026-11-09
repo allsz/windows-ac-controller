@@ -1,13 +1,17 @@
-# LG Dual Inverter - Windows 11 System Tray App
+# WTC LG (Windows Tray Controller LG) - Controle seu AC do Windows
 
 Aplicativo moderno para a bandeja do sistema (System Tray) do Windows 11/10 para controle em tempo real do ar-condicionado **LG Dual Inverter Voice** via nuvem **LG ThinQ API**.
 
 Desenvolvido em **Python 3.11+** com **PySide6 (Qt)**, inspirado nas diretrizes visuais do macOS e flyouts modernos do Windows 11 (Dark Glass, Glassmorphism e micro-animações a 60 FPS).
 
 <div align="center">
-  <img src="assets/app_mockup_off.png" width="380" alt="App Desligado" />
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="assets/app_mockup_on.png" width="380" alt="App Ligado" />
+  <img src="assets/app_mockup_off.png" width="220" style="border-radius: 16px; margin: 4px;" alt="App Desligado (Standby)" />
+  &nbsp;
+  <img src="assets/app_mockup_on.png" width="220" style="border-radius: 16px; margin: 4px;" alt="App Ligado - Modo Refrigeração (Dark Glass)" />
+  &nbsp;
+  <img src="assets/app_mockup_light_heat.png" width="220" style="border-radius: 16px; margin: 4px;" alt="App Ligado - Modo Aquecimento (Tema Claro)" />
+  &nbsp;
+  <img src="assets/app_mockup_black_fan.png" width="220" style="border-radius: 16px; margin: 4px;" alt="App Ligado - Modo Ventilação (True Black)" />
 </div>
 
 ---
@@ -16,6 +20,7 @@ Desenvolvido em **Python 3.11+** com **PySide6 (Qt)**, inspirado nas diretrizes 
 
 - **Flyout Inteligente na Bandeja:** Posicionamento automático próximo ao relógio/área de notificação com auto-ocultação ao perder foco.
 - **Sincronização Bidirecional em Tempo Real:** Consulta assíncrona do status real do aparelho na nuvem LG ThinQ sem travar a interface gráfica.
+- **Temas Dinâmicos e Adaptação ao Windows:** Suporte completo aos modos **Escuro (Dark Glass)**, **Preto Puro (Black OLED)** e **Claro (Light)** com detecção e sincronização automática com o tema do Windows 11.
 - **Hero Split Animado:** Cortina de vento volumétrica e suave (Option A) que se expande, ondula e curva suavemente em direção a $+X$, acompanhando o estado de energia do aparelho.
 - **Cores Dinâmicas por Modo de Operação:**
   - **Cool:** Cortina azul ciano suave
@@ -35,87 +40,57 @@ Desenvolvido em **Python 3.11+** com **PySide6 (Qt)**, inspirado nas diretrizes 
 
 ---
 
-## Pré-requisitos
+## Como Usar (Instalação Rápida)
 
-1. **Python 3.10+** (recomendado Python 3.11 ou 3.12).
-2. Conta de desenvolvedor ou token pessoal de acesso (**PAT - Personal Access Token**) da LG ThinQ obtido em [LG ThinQ Connect](https://thinqconnect.lgthinq.com).
+Você **não** precisa instalar Python, clonar repositório ou configurar arquivos de texto complexos. O aplicativo é 100% portátil.
 
----
+### Passo a Passo:
 
-## Instalação
+1. **Baixe o Aplicativo Portátil:**
+   - Acesse a aba **[Releases](../../releases)** do repositório no GitHub.
+   - Baixe a versão mais recente do arquivo executável: **`WTC LG.exe`**.
+   - Coloque-o em qualquer pasta de sua preferência (ex: em `Documentos` ou `Arquivos de Programas`).
 
-1. Clone o repositório:
-```bash
-git clone <url-do-repositorio>
-cd "Ar Condicionado"
-```
+2. **Obtenha seu Token PAT (LG ThinQ Connect):**
+   - Acesse o portal oficial da LG: 👉 **[connect-pat.lgthinq.com/login](https://connect-pat.lgthinq.com/login)**
+   - Faça login com a **mesma conta LG ThinQ** na qual o seu ar-condicionado está vinculado.
+   - Crie um novo **Personal Access Token (PAT)** ou copie o token já existente.
 
-2. Crie e ative um ambiente virtual:
-```bash
-python -m venv venv
-# No Windows PowerShell:
-venv\Scripts\Activate.ps1
-# Ou no CMD:
-venv\Scripts\activate.bat
-```
+3. **Inicie e Cole no App:**
+   - Dê um duplo clique no **`WTC LG.exe`**.
+   - O aplicativo se abrirá solicitando o token (ou clique no ícone da bandeja junto ao relógio do Windows).
+   - Cole o token no campo **Personal Access Token (PAT)** e clique em **Salvar e Conectar**.
+   - O assistente validará a conexão em tempo real, descobrirá o seu ar-condicionado e pronto!
 
-3. Instale as dependências:
-```bash
-pip install -r requirements.txt
-```
+> [!NOTE]
+> Suas credenciais são salvas com segurança de nível bancário no cofre local da **Windows DPAPI** (`%APPDATA%/LG-DualInverter-Controller`), criptografadas com a chave do seu próprio usuário do Windows.
+>
+> Você também pode ativar a opção **"Iniciar com o Windows"** com 1 clique direto no menu de contexto da bandeja (botão direito no ícone).
 
 ---
 
-## Configuração
+## Para Desenvolvedores (Execução via Código Fonte)
 
-Copie o arquivo de exemplo `.env.example` para `.env`:
-```bash
-copy .env.example .env
-```
+Caso deseje contribuir ou rodar a partir do código fonte em Python:
 
-Edite o arquivo `.env` com suas credenciais:
-```ini
-THINQ_PAT=thinqpat_seu_token_aqui
-THINQ_COUNTRY=BR
-THINQ_CLIENT_ID=windows_ac_tray_app
-THINQ_DEVICE_ID=seu_device_id_aqui
-```
+1. **Ambiente e Dependências:**
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
 
-> **Dica:** Para descobrir o `DEVICE_ID` do seu ar-condicionado, execute:
-> ```bash
-> python test_connection.py
-> ```
-> O script listará todos os aparelhos LG vinculados à sua conta com os respectivos IDs.
+2. **Executar em modo desenvolvimento:**
+   ```bash
+   python ui_panel.py
+   ```
 
----
-
-## Como Executar
-
-Para iniciar o aplicativo na bandeja do sistema:
-```bash
-python ui_panel.py
-```
-
-- Clique com o botão esquerdo no ícone da bandeja para abrir/fechar o painel flutuante.
-- Clique com o botão direito para o menu de contexto (Abrir Painel / Sair).
-
----
-
-## Compilando para Executável Windows (.exe)
-
-Para gerar o instalador/executável independente (sem necessidade de ter Python instalado na máquina):
-
-1. Instale o PyInstaller:
-```bash
-pip install pyinstaller
-```
-
-2. Execute o comando de build incluindo a pasta de assets:
-```bash
-pyinstaller --noconsole --onefile --windowed --add-data "assets;assets" --icon="assets/eco.png" --name "LGAirConditioner" ui_panel.py
-```
-
-O executável final será gerado na pasta `dist/LGAirConditioner.exe`. Certifique-se de colocar o arquivo `.env` no mesmo diretório do `.exe`.
+3. **Compilar o Executável Portátil (.exe) com PyInstaller:**
+   ```bash
+   pip install pyinstaller
+   pyinstaller --noconsole --onefile --windowed --add-data "assets;assets" --icon="assets/app_icon.ico" --name "WTC LG" ui_panel.py
+   ```
+   O arquivo final será gerado em `dist/WTC LG.exe`.
 
 ---
 

@@ -16,9 +16,12 @@ dist/
 *.manifest
 *.spec
 
-# IDE and OS files
+# IDE, AI agents and OS files
 .vscode/
 .idea/
+.agent/
+.gemini/
+.impeccable/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
