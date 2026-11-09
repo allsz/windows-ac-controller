@@ -1502,32 +1502,38 @@ class ACPanelWidget(QtWidgets.QFrame):
         temp_eco_row.addStretch()
 
         # Eco Mode: Card compacto com asset eco_mode.png e switch animado
-        eco_card = QtWidgets.QFrame()
-        eco_card.setObjectName("EcoCard")
-        eco_card.setSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
-        eco_card.setStyleSheet(f"""
+        self.eco_card = EcoCard()
+        self.eco_card.setSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.eco_card.setStyleSheet(f"""
             QFrame#EcoCard {{
                 background-color: #171920;
                 border: 1px solid {BORDER_COLOR};
                 border-radius: 17px;
             }}
+            QFrame#EcoCard:hover {{
+                background-color: #1F222B;
+                border: 1px solid rgba(255, 255, 255, 0.22);
+            }}
         """)
-        eco_layout = QtWidgets.QHBoxLayout(eco_card)
+        eco_layout = QtWidgets.QHBoxLayout(self.eco_card)
         eco_layout.setContentsMargins(10, 5, 10, 5)
         eco_layout.setSpacing(8)
 
-        eco_icon = QtWidgets.QLabel()
-        eco_icon.setFixedSize(24, 24)
-        eco_icon.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        eco_icon.setPixmap(load_user_icon("eco_mode.png", 24, 24, color="#FFFFFF"))
-        eco_layout.addWidget(eco_icon)
+        self.eco_icon = QtWidgets.QLabel()
+        self.eco_icon.setFixedSize(24, 24)
+        self.eco_icon.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.eco_icon.setPixmap(load_user_icon("eco_mode.png", 24, 24, color="#FFFFFF"))
+        eco_layout.addWidget(self.eco_icon)
 
         self.toggle_eco = AnimatedToggle()
         self.toggle_eco.setChecked(self.eco_mode)
         self.toggle_eco.stateChanged.connect(self._eco_state_changed)
         eco_layout.addWidget(self.toggle_eco)
 
-        temp_eco_row.addWidget(eco_card, 0, QtCore.Qt.AlignmentFlag.AlignVCenter)
+        # Clicar em qualquer lugar do card pílula aciona o toggle
+        self.eco_card.clicked.connect(self.toggle_eco.toggle)
+
+        temp_eco_row.addWidget(self.eco_card, 0, QtCore.Qt.AlignmentFlag.AlignVCenter)
         layout.addLayout(temp_eco_row)
 
         # -------------------------------------------------------------
@@ -1862,7 +1868,7 @@ class ACPanelWidget(QtWidgets.QFrame):
             self.slider.setValue(self.slider.value() + 1)
 
     def _eco_state_changed(self, state):
-        self.eco_mode = bool(state)
+        self.eco_mode = self.toggle_eco.isChecked()
         self.eco_toggled.emit(self.eco_mode)
         # Modo Eco: desliga ou liga o visor do ar condicionado
         self._send_thinq_command({"display": {"light": "OFF" if self.eco_mode else "ON"}})
