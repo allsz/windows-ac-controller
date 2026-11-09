@@ -5,20 +5,139 @@ import re
 from PySide6 import QtCore, QtGui, QtWidgets, QtSvg
 
 # =====================================================================
-# Design System (Dark Glass Modern - Fidelidade Absoluta ao Mockup)
+# Design System & Dynamic Background Themes
 # =====================================================================
-BG_COLOR = "#0D0E12"
-CARD_BG = "#191B22"
-CARD_HOVER = "#22252F"
-CARD_ACTIVE = "#2C303E"
-BORDER_COLOR = "rgba(255, 255, 255, 0.08)"
-TEXT_PRIMARY = "#FFFFFF"
-TEXT_SECONDARY = "#94A3B8"
 ACCENT_GREEN = "#4ADE80"
 ACCENT_CYAN = "#38BDF8"
 ACCENT_ORANGE = "#FB923C"
 THUMB_COLOR = "#D4C5B9"
 POWER_CREAM = "#D4D0C7"
+
+THEME_PALETTES = {
+    "dark": {
+        "bg_color": "#0D0E12",
+        "card_bg": "#191B22",
+        "card_hover": "#22252F",
+        "card_active": "#2C303E",
+        "border_color": "rgba(255, 255, 255, 0.08)",
+        "border_hover": "rgba(255, 255, 255, 0.16)",
+        "border_active": "rgba(255, 255, 255, 0.28)",
+        "panel_border": "rgba(255, 255, 255, 0.12)",
+        "text_primary": "#FFFFFF",
+        "text_secondary": "#94A3B8",
+        "text_muted": "#64748B",
+        "icon_color": "#FFFFFF",
+        "power_color": "#D4D0C7",
+        "power_off_color": "#64748B",
+        "power_bg": "rgba(255, 255, 255, 0.08)",
+        "power_hover": "rgba(255, 255, 255, 0.14)",
+        "power_pressed": "rgba(255, 255, 255, 0.04)",
+        "stepper_color": "#FFFFFF",
+        "slider_groove": "#181A22",
+        "slider_groove_border": "rgba(255, 255, 255, 0.06)",
+        "drawer_bg": "#13151C",
+        "drawer_border": "rgba(255, 255, 255, 0.08)",
+        "opt_bg": "#181A22",
+        "opt_bg_active": "#272B38",
+        "opt_bg_hover": "#2F3444",
+        "opt_color": "#E2E8F0",
+        "opt_color_active": "#38BDF8",
+        "opt_border": "rgba(255, 255, 255, 0.08)",
+        "opt_border_active": "rgba(56, 189, 248, 0.5)",
+        "menu_bg": "#181920",
+        "menu_color": "#FFFFFF",
+        "menu_border": "rgba(255, 255, 255, 0.12)",
+        "menu_item_hover_bg": "#272A36",
+        "menu_item_hover_color": "#38BDF8",
+        "menu_separator": "rgba(255, 255, 255, 0.08)",
+        "settings_btn_hover": "#22252F",
+    },
+    "black": {
+        "bg_color": "#000000",
+        "card_bg": "#0D0D11",
+        "card_hover": "#17171E",
+        "card_active": "#21212B",
+        "border_color": "rgba(255, 255, 255, 0.10)",
+        "border_hover": "rgba(255, 255, 255, 0.20)",
+        "border_active": "rgba(255, 255, 255, 0.32)",
+        "panel_border": "rgba(255, 255, 255, 0.14)",
+        "text_primary": "#FFFFFF",
+        "text_secondary": "#9E9EAF",
+        "text_muted": "#6E6E82",
+        "icon_color": "#FFFFFF",
+        "power_color": "#D4D0C7",
+        "power_off_color": "#6E6E82",
+        "power_bg": "rgba(255, 255, 255, 0.10)",
+        "power_hover": "rgba(255, 255, 255, 0.16)",
+        "power_pressed": "rgba(255, 255, 255, 0.06)",
+        "stepper_color": "#FFFFFF",
+        "slider_groove": "#0C0D12",
+        "slider_groove_border": "rgba(255, 255, 255, 0.08)",
+        "drawer_bg": "#0A0B0E",
+        "drawer_border": "rgba(255, 255, 255, 0.10)",
+        "opt_bg": "#111218",
+        "opt_bg_active": "#222533",
+        "opt_bg_hover": "#2A2D3D",
+        "opt_color": "#E2E8F0",
+        "opt_color_active": "#38BDF8",
+        "opt_border": "rgba(255, 255, 255, 0.10)",
+        "opt_border_active": "rgba(56, 189, 248, 0.55)",
+        "menu_bg": "#101014",
+        "menu_color": "#FFFFFF",
+        "menu_border": "rgba(255, 255, 255, 0.14)",
+        "menu_item_hover_bg": "#222533",
+        "menu_item_hover_color": "#38BDF8",
+        "menu_separator": "rgba(255, 255, 255, 0.10)",
+        "settings_btn_hover": "#17171E",
+    },
+    "light": {
+        "bg_color": "#F8F9FA",
+        "card_bg": "#FFFFFF",
+        "card_hover": "#F1F3F5",
+        "card_active": "#E9ECEF",
+        "border_color": "rgba(0, 0, 0, 0.08)",
+        "border_hover": "rgba(0, 0, 0, 0.16)",
+        "border_active": "rgba(0, 0, 0, 0.28)",
+        "panel_border": "rgba(0, 0, 0, 0.12)",
+        "text_primary": "#0F172A",
+        "text_secondary": "#475569",
+        "text_muted": "#64748B",
+        "icon_color": "#0F172A",
+        "power_color": "#D97706",
+        "power_off_color": "#94A3B8",
+        "power_bg": "rgba(0, 0, 0, 0.06)",
+        "power_hover": "rgba(0, 0, 0, 0.10)",
+        "power_pressed": "rgba(0, 0, 0, 0.04)",
+        "stepper_color": "#0F172A",
+        "slider_groove": "#E2E8F0",
+        "slider_groove_border": "rgba(0, 0, 0, 0.06)",
+        "drawer_bg": "#F1F5F9",
+        "drawer_border": "rgba(0, 0, 0, 0.08)",
+        "opt_bg": "#FFFFFF",
+        "opt_bg_active": "#E0F2FE",
+        "opt_bg_hover": "#F8FAFC",
+        "opt_color": "#1E293B",
+        "opt_color_active": "#0284C7",
+        "opt_border": "rgba(0, 0, 0, 0.08)",
+        "opt_border_active": "rgba(2, 132, 199, 0.6)",
+        "menu_bg": "#FFFFFF",
+        "menu_color": "#0F172A",
+        "menu_border": "rgba(0, 0, 0, 0.12)",
+        "menu_item_hover_bg": "#F1F5F9",
+        "menu_item_hover_color": "#0284C7",
+        "menu_separator": "rgba(0, 0, 0, 0.08)",
+        "settings_btn_hover": "#E2E8F0",
+    },
+}
+
+# Aliases de compatibilidade para código que utilize as constantes diretamente
+BG_COLOR = THEME_PALETTES["dark"]["bg_color"]
+CARD_BG = THEME_PALETTES["dark"]["card_bg"]
+CARD_HOVER = THEME_PALETTES["dark"]["card_hover"]
+CARD_ACTIVE = THEME_PALETTES["dark"]["card_active"]
+BORDER_COLOR = THEME_PALETTES["dark"]["border_color"]
+TEXT_PRIMARY = THEME_PALETTES["dark"]["text_primary"]
+TEXT_SECONDARY = THEME_PALETTES["dark"]["text_secondary"]
 
 # SVGs de sistema mantidos
 SVG_LEAF_FILL = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
@@ -83,6 +202,14 @@ TRANSLATIONS = {
         "autostart": "Start with Windows",
         "open_panel": "Open Panel",
         "quit": "Quit",
+        "theme": "Background Theme",
+        "theme_system": "System",
+        "theme_light": "Light (Off-white)",
+        "theme_dark": "Dark",
+        "theme_black": "True Black",
+        "ac_color": "AC Unit Style",
+        "ac_color_white": "Classic White",
+        "ac_color_black": "Artcool Black",
     },
     "pt": {
         "room": "Ambiente",
@@ -113,6 +240,14 @@ TRANSLATIONS = {
         "autostart": "Iniciar com o Windows",
         "open_panel": "Abrir Painel",
         "quit": "Sair",
+        "theme": "Tema de Fundo",
+        "theme_system": "Sistema",
+        "theme_light": "Claro (Off-white)",
+        "theme_dark": "Escuro",
+        "theme_black": "Preto Puro (True Black)",
+        "ac_color": "Cor do Ar-Condicionado",
+        "ac_color_white": "Branco Clássico",
+        "ac_color_black": "Preto Artcool",
     },
     "es": {
         "room": "Ambiente",
@@ -143,6 +278,14 @@ TRANSLATIONS = {
         "autostart": "Iniciar con Windows",
         "open_panel": "Abrir Panel",
         "quit": "Salir",
+        "theme": "Tema de Fondo",
+        "theme_system": "Sistema",
+        "theme_light": "Claro (Off-white)",
+        "theme_dark": "Oscuro",
+        "theme_black": "Negro Puro (True Black)",
+        "ac_color": "Color del Aire Acondicionado",
+        "ac_color_white": "Blanco Clásico",
+        "ac_color_black": "Negro Artcool",
     }
 }
 
@@ -158,6 +301,17 @@ def get_resource_path(relative_path: str) -> str:
     """Retorna o caminho absoluto para recursos/assets, suportando tanto Python puro quanto PyInstaller (_MEIPASS)."""
     base = getattr(sys, '_MEIPASS', get_base_dir())
     return os.path.join(base, relative_path)
+
+
+# Carrega o novo design vetorial do ar condicionado
+new_design_dir = get_resource_path(os.path.join("assets", "new_design"))
+if os.path.exists(new_design_dir) and new_design_dir not in sys.path:
+    sys.path.insert(0, new_design_dir)
+
+try:
+    from ac_unit import render_ac_svg
+except ImportError:
+    render_ac_svg = None
 
 
 def is_autostart_enabled(app_name: str = "LGAirConditioner") -> bool:
@@ -264,13 +418,13 @@ def load_user_icon(filename: str, width: int = 24, height: int = 24, color: str 
     return result
 
 
-def create_stepper_icon(symbol_type: str, size: int = 38) -> QtGui.QIcon:
+def create_stepper_icon(symbol_type: str, size: int = 38, color: str = "#FFFFFF") -> QtGui.QIcon:
     """Gera ícone vetorial perfeitamente centralizado para os botões (+) e (-) do stepper"""
     pix = QtGui.QPixmap(size, size)
     pix.fill(QtCore.Qt.GlobalColor.transparent)
     p = QtGui.QPainter(pix)
     p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
-    pen = QtGui.QPen(QtGui.QColor("#FFFFFF"), 2.2)
+    pen = QtGui.QPen(QtGui.QColor(color), 2.2)
     pen.setCapStyle(QtCore.Qt.PenCapStyle.RoundCap)
     p.setPen(pen)
 
@@ -322,45 +476,98 @@ def create_dot_pixmap(diameter: int = 6, color_hex: str = ACCENT_GREEN) -> QtGui
 
 
 class AnimatedAirCurtainHero(QtWidgets.QWidget):
-    """Widget Hero: Ar Condicionado Split com Cortina de Vento e Aleta Estática"""
+    """Widget Hero: Ar Condicionado Split com o novo design vetorial moderno"""
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setFixedHeight(185)
+        self.setFixedHeight(168)
         self.is_powered_on = False
         self.current_mode = "Cool"
+        self.fan_speed = "Auto"
+        self.target_temp = 21
+        self.airflow_state = "Vertical"
+        self.ac_color = "white"
+        self._louver_angle = 0.0
+        self._flow_progress = 0.0
         self._phase = 0.0
-        self._wind_alpha = 1.0
+        self._renderer = QtSvg.QSvgRenderer()
 
-        path_closed = get_resource_path(os.path.join("assets", "ac_unit_pure.png"))
-        if not os.path.exists(path_closed):
-            path_closed = get_resource_path(os.path.join("assets", "ac_unit_nobg.png"))
+        self._louver_anim = QtCore.QPropertyAnimation(self, b"louver_angle", self)
+        self._louver_anim.setDuration(550)
+        self._louver_anim.setEasingCurve(QtCore.QEasingCurve.Type.InOutCubic)
 
-        path_open = get_resource_path(os.path.join("assets", "ac_unit_open.png"))
-        self.pix_closed = QtGui.QPixmap(path_closed)
-        self.pix_open = QtGui.QPixmap(path_open) if os.path.exists(path_open) else self.pix_closed
-        self.ac_pixmap = self.pix_closed
+        self._flow_anim = QtCore.QPropertyAnimation(self, b"flow_progress", self)
+        self._flow_anim.setDuration(600)
+        self._flow_anim.setEasingCurve(QtCore.QEasingCurve.Type.InOutCubic)
+        self._flow_anim.finished.connect(self._on_flow_anim_finished)
 
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self._step)
         self.timer.setInterval(33)
 
+    def _get_louver_angle(self):
+        return self._louver_angle
+
+    def _set_louver_angle(self, angle: float):
+        self._louver_angle = angle
+        self.update()
+
+    louver_angle = QtCore.Property(float, _get_louver_angle, _set_louver_angle)
+
+    def _get_flow_progress(self):
+        return self._flow_progress
+
+    def _set_flow_progress(self, val: float):
+        self._flow_progress = val
+        self.update()
+
+    flow_progress = QtCore.Property(float, _get_flow_progress, _set_flow_progress)
+
+    def _on_flow_anim_finished(self):
+        if not self.is_powered_on and self._flow_progress <= 0.01:
+            if self.timer.isActive():
+                self.timer.stop()
+            self.update()
+
     def set_power(self, power: bool):
         self.is_powered_on = power
-        if power:
-            self._wind_alpha = 1.0
+        target_angle = 70.0 if power else 0.0
+        self._louver_anim.stop()
+        self._louver_anim.setStartValue(self._louver_angle)
+        self._louver_anim.setEndValue(target_angle)
+        self._louver_anim.start()
+
+        self._flow_anim.stop()
+        self._flow_anim.setStartValue(self._flow_progress)
+        self._flow_anim.setEndValue(1.0 if power else 0.0)
+        self._flow_anim.start()
+
+        if power or self._flow_progress > 0.01:
             if not self.timer.isActive():
                 self.timer.start()
-        else:
-            self._wind_alpha = 0.0
-            self.timer.stop()
         self.update()
 
     def set_mode(self, mode: str):
         self.current_mode = mode
         self.update()
 
+    def set_fan(self, fan: str):
+        self.fan_speed = fan
+        self.update()
+
+    def set_temp(self, temp):
+        try:
+            self.target_temp = int(round(float(temp)))
+        except (ValueError, TypeError):
+            self.target_temp = 21
+        self.update()
+
+    def set_ac_color(self, color: str):
+        if color in ["white", "black"] and self.ac_color != color:
+            self.ac_color = color
+            self.update()
+
     def set_airflow(self, airflow: str):
-        # Aleta mantida estática conforme solicitado (sem animações da aleta no modo swing)
+        self.airflow_state = airflow
         self.update()
 
     def showEvent(self, event):
@@ -373,222 +580,70 @@ class AnimatedAirCurtainHero(QtWidgets.QWidget):
         self.timer.stop()
 
     def _step(self):
-        if not self.is_powered_on:
+        if not self.is_powered_on and self._flow_progress <= 0.01 and self._louver_angle <= 0.01:
             self.timer.stop()
             self.update()
             return
 
-        # Animação da cortina fluida de ar
-        self._phase += 0.035
+        fan_speed_factor = {"low": 0.025, "mid": 0.040, "high": 0.065, "auto": 0.040}
+        delta = fan_speed_factor.get(self.fan_speed.lower(), 0.040)
+        self._phase += delta
         if self._phase > 2 * math.pi * 100:
             self._phase = 0.0
 
         self.update()
 
     def paintEvent(self, event):
-        p = QtGui.QPainter(self)
-        p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
-        p.setRenderHint(QtGui.QPainter.RenderHint.SmoothPixmapTransform)
-
         w = self.width()
-        ac_w = 192
-        if not self.pix_closed.isNull():
-            ac_h = int(ac_w * (self.pix_closed.height() / self.pix_closed.width()))
-        else:
-            ac_h = 124
+        h = self.height()
+        # Escala reduzida em 10% para melhor equilíbrio visual do mockup e da cortina de ar
+        scale = min(w / 400.0, 185.0 / 210.0) * 0.90
+        target_w = 400.0 * scale
+        target_h = 250.0 * scale
+        target_x = (w - target_w) / 2.0
+        target_y = 2.0
+        target_rect = QtCore.QRectF(target_x, target_y, target_w, target_h)
 
-        ac_x = (w - ac_w) // 2
-        ac_y = 6
+        if render_ac_svg is not None:
+            is_swing = (self.airflow_state.lower() == "swing")
+            svg_data = render_ac_svg(
+                on=self.is_powered_on,
+                mode=self.current_mode,
+                fan=self.fan_speed,
+                louver=self._louver_angle,
+                swing=is_swing,
+                temp=self.target_temp if (self.is_powered_on and self.target_temp is not None) else None,
+                phase=self._phase if (self.is_powered_on or self._flow_progress > 0.01) else None,
+                uid="ac_hero",
+                ac_color=self.ac_color,
+                flow_progress=self._flow_progress,
+            )
+            self._renderer.load(QtCore.QByteArray(svg_data.encode('utf-8')))
 
-        # ESTADO 1: DESLIGADO (OFF)
-        # Aleta fechada e rente ao chassi, sem fluxo de ar
-        if not self.is_powered_on:
-            if not self.pix_closed.isNull():
-                p.drawPixmap(ac_x, ac_y, ac_w, ac_h, self.pix_closed)
+            # Renderiza primeiro em buffer para aplicar gradiente suave de transparência no fluxo de ar
+            buf = QtGui.QImage(w, h, QtGui.QImage.Format.Format_ARGB32_Premultiplied)
+            buf.fill(QtCore.Qt.GlobalColor.transparent)
+            bp = QtGui.QPainter(buf)
+            bp.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+            bp.setRenderHint(QtGui.QPainter.RenderHint.SmoothPixmapTransform)
+            self._renderer.render(bp, target_rect)
+
+            # Transição suave (fade out) para transparência no término da cortina de ar
+            if self.is_powered_on or self._flow_progress > 0.01:
+                bp.setCompositionMode(QtGui.QPainter.CompositionMode.CompositionMode_DestinationIn)
+                fade_grad = QtGui.QLinearGradient(0, 0, 0, h)
+                fade_grad.setColorAt(0.0, QtGui.QColor(0, 0, 0, 255))
+                fade_grad.setColorAt(0.52, QtGui.QColor(0, 0, 0, 255))
+                fade_grad.setColorAt(0.75, QtGui.QColor(0, 0, 0, 210))
+                fade_grad.setColorAt(0.90, QtGui.QColor(0, 0, 0, 90))
+                fade_grad.setColorAt(1.0, QtGui.QColor(0, 0, 0, 0))
+                bp.fillRect(0, 0, w, h, QtGui.QBrush(fade_grad))
+
+            bp.end()
+
+            p = QtGui.QPainter(self)
+            p.drawImage(0, 0, buf)
             p.end()
-            return
-
-        # ESTADO 2: LIGADO (ON)
-        # 1. Cortina de ar fluindo sob o aparelho
-        self._draw_air_curtain(p, ac_x, ac_y, ac_w, ac_h)
-
-        # 2. Aleta aberta estática e sólida
-        if not self.pix_open.isNull():
-            h_open = int(ac_w * (self.pix_open.height() / self.pix_open.width()))
-            p.drawPixmap(ac_x, ac_y, ac_w, h_open, self.pix_open)
-        elif not self.pix_closed.isNull():
-            p.drawPixmap(ac_x, ac_y, ac_w, ac_h, self.pix_closed)
-
-        p.end()
-
-    def _draw_air_curtain(self, p: QtGui.QPainter, ac_x: int, ac_y: int, ac_w: int, ac_h: int):
-        mode = self.current_mode.lower()
-        if "heat" in mode:
-            base_col = QtGui.QColor(251, 146, 60)
-            accent_col = QtGui.QColor(254, 215, 170)
-        elif "fan" in mode:
-            base_col = QtGui.QColor(241, 245, 249)
-            accent_col = QtGui.QColor(255, 255, 255)
-        elif "dry" in mode:
-            base_col = QtGui.QColor(45, 212, 191)
-            accent_col = QtGui.QColor(153, 246, 228)
-        else:
-            base_col = QtGui.QColor(56, 189, 248)
-            accent_col = QtGui.QColor(186, 230, 253)
-
-        vent_x1 = ac_x + int(ac_w * 0.12)
-        vent_x2 = ac_x + int(ac_w * 0.88)
-        vent_y1 = ac_y + int(ac_h * 0.98)
-        vent_y2 = ac_y + int(ac_h * 0.67)
-
-        wind_img = QtGui.QImage(self.width(), self.height(), QtGui.QImage.Format.Format_ARGB32_Premultiplied)
-        wind_img.fill(QtCore.Qt.GlobalColor.transparent)
-        wp = QtGui.QPainter(wind_img)
-        wp.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
-
-        # -----------------------------------------------------------------
-        # Curvatura suave para cima: o ar desce da aleta e sobe para frente
-        # -----------------------------------------------------------------
-
-        # -----------------------------------------------------------------
-        # Trajetória fiel ao desenho: sai de Y vertical e curva para X horizontal (+X direita)
-        # -----------------------------------------------------------------
-
-        # Camada 1: Glow difuso de fundo (Backlight Glow / Névoa)
-        num_glows = 14
-        for g in range(num_glows):
-            tg = g / (num_glows - 1)
-            gx = vent_x1 + tg * (vent_x2 - vent_x1)
-            gy = vent_y1 + tg * (vent_y2 - vent_y1)
-
-            drift_x = 32 + tg * 32
-
-            c1x = gx + drift_x * 0.12
-            c1y = gy + 20
-            c2x = gx + drift_x * 0.68
-            c2y = gy + 34
-            g_ex = gx + drift_x
-            g_ey = gy + 35
-
-            g_path = QtGui.QPainterPath()
-            g_path.moveTo(gx, gy)
-            g_path.cubicTo(c1x, c1y, c2x, c2y, g_ex, g_ey)
-
-            g_grad = QtGui.QLinearGradient(gx, gy, g_ex, g_ey)
-            edge = math.sin(tg * math.pi)
-            g_alpha = int(34 * self._wind_alpha * edge)
-
-            cg_top = QtGui.QColor(base_col)
-            cg_top.setAlpha(g_alpha)
-            cg_bot = QtGui.QColor(base_col)
-            cg_bot.setAlpha(0)
-
-            g_grad.setColorAt(0.0, cg_top)
-            g_grad.setColorAt(0.45, cg_top)
-            g_grad.setColorAt(1.0, cg_bot)
-
-            pen_g = QtGui.QPen(QtGui.QBrush(g_grad), 32.0)
-            pen_g.setCapStyle(QtCore.Qt.PenCapStyle.RoundCap)
-            wp.setPen(pen_g)
-            wp.drawPath(g_path)
-
-        # Camada 2: Faixas Volumétricas Principais (Curvando de Y para X)
-        num_streams = 22
-        for i in range(num_streams):
-            t = i / (num_streams - 1)
-            sx = vent_x1 + t * (vent_x2 - vent_x1)
-            sy = vent_y1 + t * (vent_y2 - vent_y1)
-
-            wave_y = math.sin(self._phase + i * 0.35) * 5.0
-            wave_x = math.cos(self._phase * 0.8 + i * 0.3) * 4.0
-
-            drift_x = 34 + t * 34 + wave_x
-
-            # Começa descendo verticalmente em Y
-            c1x = sx + drift_x * 0.12
-            c1y = sy + 18 + wave_y * 0.3
-
-            # Curva fazendo a dobra em direção a X
-            c2x = sx + drift_x * 0.70
-            c2y = sy + 33 + wave_y * 0.7
-
-            # Ponto final nivelado horizontalmente em X
-            ex = sx + drift_x
-            ey = sy + 35 + wave_y
-
-            path = QtGui.QPainterPath()
-            path.moveTo(sx, sy)
-            path.cubicTo(c1x, c1y, c2x, c2y, ex, ey)
-
-            grad = QtGui.QLinearGradient(sx, sy, ex, ey)
-            edge_factor = math.sin(t * math.pi)
-            pulse = 0.75 + 0.25 * math.sin(self._phase * 0.85 + i * 0.45)
-
-            alpha_top = int(76 * self._wind_alpha * edge_factor * pulse)
-            alpha_mid = int(42 * self._wind_alpha * edge_factor * pulse)
-
-            c_top = QtGui.QColor(accent_col)
-            c_top.setAlpha(alpha_top)
-            c_mid = QtGui.QColor(base_col)
-            c_mid.setAlpha(alpha_mid)
-            c_bot = QtGui.QColor(base_col)
-            c_bot.setAlpha(0)
-
-            grad.setColorAt(0.0, c_top)
-            grad.setColorAt(0.35, c_mid)
-            grad.setColorAt(0.85, c_bot)
-            grad.setColorAt(1.0, c_bot)
-
-            pen_w = 20.0 + 5.0 * math.sin(self._phase * 0.5 + i)
-            pen = QtGui.QPen(QtGui.QBrush(grad), pen_w)
-            pen.setCapStyle(QtCore.Qt.PenCapStyle.RoundCap)
-            wp.setPen(pen)
-            wp.drawPath(path)
-
-        # Camada 3: Cristas Internas Suaves
-        for j in range(10):
-            t = (j + 0.5) / 10.0
-            sx = vent_x1 + t * (vent_x2 - vent_x1)
-            sy = vent_y1 + t * (vent_y2 - vent_y1)
-
-            w_ph = self._phase * 1.35 + j * 0.55
-            wave_w = math.sin(w_ph) * 6.0
-            drift_x = 36 + t * 32 + wave_w
-
-            c1x = sx + drift_x * 0.12
-            c1y = sy + 19
-            c2x = sx + drift_x * 0.70
-            c2y = sy + 34 + wave_w * 0.7
-            ex = sx + drift_x
-            ey = sy + 36 + wave_w
-
-            path = QtGui.QPainterPath()
-            path.moveTo(sx, sy)
-            path.cubicTo(c1x, c1y, c2x, c2y, ex, ey)
-
-            w_grad = QtGui.QLinearGradient(sx, sy, ex, ey)
-            edge_factor = math.sin(t * math.pi)
-            pulse = 0.7 + 0.3 * math.sin(w_ph)
-            alpha_top = int(62 * self._wind_alpha * edge_factor * pulse)
-
-            c_w_top = QtGui.QColor(accent_col)
-            c_w_top.setAlpha(alpha_top)
-            c_w_bot = QtGui.QColor(base_col)
-            c_w_bot.setAlpha(0)
-
-            w_grad.setColorAt(0.0, c_w_top)
-            w_grad.setColorAt(0.4, c_w_top)
-            w_grad.setColorAt(0.9, c_w_bot)
-            w_grad.setColorAt(1.0, c_w_bot)
-
-            pen_w = 9.0 + 2.5 * math.sin(w_ph)
-            pen = QtGui.QPen(QtGui.QBrush(w_grad), pen_w)
-            pen.setCapStyle(QtCore.Qt.PenCapStyle.RoundCap)
-            wp.setPen(pen)
-            wp.drawPath(path)
-
-        wp.end()
-        p.drawImage(0, 0, wind_img)
 
 
 class AnimatedToggle(QtWidgets.QCheckBox):
@@ -618,33 +673,157 @@ class AnimatedToggle(QtWidgets.QCheckBox):
         self._anim.setEndValue(25.0 if state else 3.0)
         self._anim.start()
 
+    def setChecked(self, checked: bool):
+        super().setChecked(checked)
+        if self.signalsBlocked():
+            self._anim.stop()
+            self._thumb_position = 25.0 if checked else 3.0
+            self.update()
+
+    def hitButton(self, pos: QtCore.QPoint) -> bool:
+        """Garante que 100% da área do switch receba cliques do mouse"""
+        return self.contentsRect().contains(pos)
+
     def paintEvent(self, event):
         p = QtGui.QPainter(self)
         p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
 
+        is_light = getattr(self, "_is_light", False)
         is_on = self.isChecked()
-        bg_col = QtGui.QColor(THUMB_COLOR) if is_on else QtGui.QColor(42, 45, 54)
+        bg_col = QtGui.QColor(THUMB_COLOR) if is_on else (QtGui.QColor(210, 215, 224) if is_light else QtGui.QColor(42, 45, 54))
         p.setBrush(QtGui.QBrush(bg_col))
         p.setPen(QtCore.Qt.PenStyle.NoPen)
         p.drawRoundedRect(0, 0, self.width(), self.height(), 12, 12)
 
-        thumb_col = QtGui.QColor(20, 22, 28) if is_on else QtGui.QColor(160, 166, 178)
+        thumb_col = QtGui.QColor(20, 22, 28) if is_on else (QtGui.QColor(100, 110, 125) if is_light else QtGui.QColor(160, 166, 178))
         p.setBrush(QtGui.QBrush(thumb_col))
         p.drawEllipse(QtCore.QPointF(self._thumb_position + 9.0, 12.0), 9.0, 9.0)
         p.end()
 
+    def set_light_mode(self, is_light: bool):
+        self._is_light = is_light
+        self.update()
+
+
+class EcoCard(QtWidgets.QFrame):
+    """Card pílula interativo para o Modo Eco"""
+    clicked = QtCore.Signal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("EcoCard")
+        self.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+
+    def mousePressEvent(self, event: QtGui.QMouseEvent):
+        if event.button() == QtCore.Qt.MouseButton.LeftButton:
+            self.clicked.emit()
+            event.accept()
+            return
+        super().mousePressEvent(event)
+
+
+def lerp_color(c1, c2, t: float) -> QtGui.QColor:
+    """Interpola linearmente entre duas cores."""
+    col1 = QtGui.QColor(c1) if not isinstance(c1, QtGui.QColor) else c1
+    col2 = QtGui.QColor(c2) if not isinstance(c2, QtGui.QColor) else c2
+    factor = max(0.0, min(1.0, float(t)))
+    r = int(col1.red() + (col2.red() - col1.red()) * factor)
+    g = int(col1.green() + (col2.green() - col1.green()) * factor)
+    b = int(col1.blue() + (col2.blue() - col1.blue()) * factor)
+    a = int(col1.alpha() + (col2.alpha() - col1.alpha()) * factor)
+    return QtGui.QColor(r, g, b, a)
+
+
+SLIDER_MODE_THEMES = {
+    "cool": {
+        "thumb": "#38BDF8",
+        "thumb_hover": "#7DD3FC",
+        "track_stops": [
+            (0.0, "#16202E"),
+            (0.4, "#1E354F"),
+            (0.85, "#0E5A8A"),
+            (1.0, "#0284C7"),
+        ],
+    },
+    "heat": {
+        "thumb": "#FB923C",
+        "thumb_hover": "#FDBA74",
+        "track_stops": [
+            (0.0, "#241B1F"),
+            (0.4, "#42241C"),
+            (0.85, "#7C3416"),
+            (1.0, "#C2410C"),
+        ],
+    },
+    "dry": {
+        "thumb": "#2DD4BF",
+        "thumb_hover": "#5EEAD4",
+        "track_stops": [
+            (0.0, "#152424"),
+            (0.4, "#16423D"),
+            (0.85, "#11695F"),
+            (1.0, "#0F766E"),
+        ],
+    },
+    "fan": {
+        "thumb": "#CBD5E1",
+        "thumb_hover": "#F1F5F9",
+        "track_stops": [
+            (0.0, "#1E222A"),
+            (0.4, "#2B3342"),
+            (0.85, "#475569"),
+            (1.0, "#64748B"),
+        ],
+    },
+    "auto": {
+        "thumb": "#818CF8",
+        "thumb_hover": "#A5B4FC",
+        "track_stops": [
+            (0.0, "#1E1F30"),
+            (0.4, "#2E3052"),
+            (0.85, "#4338CA"),
+            (1.0, "#6366F1"),
+        ],
+    },
+}
+
+
+def get_slider_theme(mode: str) -> dict:
+    if not mode:
+        return SLIDER_MODE_THEMES["cool"]
+    key = str(mode).lower().strip()
+    if key in ["heat", "quente", "calor"]:
+        return SLIDER_MODE_THEMES["heat"]
+    elif key in ["cool", "frio", "frío"]:
+        return SLIDER_MODE_THEMES["cool"]
+    elif key in ["dry", "desumidificar", "deshumidificar"]:
+        return SLIDER_MODE_THEMES["dry"]
+    elif key in ["fan", "ventilar", "ventilador"]:
+        return SLIDER_MODE_THEMES["fan"]
+    elif key in ["auto", "automático", "automatico"]:
+        return SLIDER_MODE_THEMES["auto"]
+    return SLIDER_MODE_THEMES.get(key, SLIDER_MODE_THEMES["cool"])
+
 
 class ModernTrackSlider(QtWidgets.QSlider):
-    """Slider de trilha premium com gradiente contínuo e pill perfeitamente integrado"""
+    """Slider de trilha premium com gradiente contínuo e pill perfeitamente integrado à paleta do modo"""
     def __init__(self, parent=None):
         super().__init__(QtCore.Qt.Orientation.Horizontal, parent)
         self._dragging = False
         self._hovered = False
         self._visual_ratio = 0.0
+        self._current_mode = "cool"
 
         self._anim = QtCore.QPropertyAnimation(self, b"visual_ratio", self)
         self._anim.setDuration(130)
         self._anim.setEasingCurve(QtCore.QEasingCurve.Type.OutCubic)
+
+        self._color_ratio = 1.0
+        self._prev_theme = get_slider_theme("cool")
+        self._curr_theme = get_slider_theme("cool")
+        self._color_anim = QtCore.QPropertyAnimation(self, b"color_ratio", self)
+        self._color_anim.setDuration(180)
+        self._color_anim.setEasingCurve(QtCore.QEasingCurve.Type.InOutCubic)
 
         self.setFixedHeight(38)
         self.setMinimum(18)
@@ -665,6 +844,69 @@ class ModernTrackSlider(QtWidgets.QSlider):
         self.update()
 
     visual_ratio = QtCore.Property(float, _get_visual_ratio, _set_visual_ratio)
+
+    def _get_color_ratio(self):
+        return self._color_ratio
+
+    def _set_color_ratio(self, r):
+        self._color_ratio = r
+        self.update()
+
+    color_ratio = QtCore.Property(float, _get_color_ratio, _set_color_ratio)
+
+    def _get_interpolated_theme(self, t: float) -> dict:
+        if t >= 1.0:
+            return self._curr_theme
+        if t <= 0.0:
+            return self._prev_theme
+
+        thumb = lerp_color(self._prev_theme["thumb"], self._curr_theme["thumb"], t).name()
+        thumb_hover = lerp_color(self._prev_theme["thumb_hover"], self._curr_theme["thumb_hover"], t).name()
+
+        stops = []
+        for (p1, c1_hex), (p2, c2_hex) in zip(self._prev_theme["track_stops"], self._curr_theme["track_stops"]):
+            col = lerp_color(c1_hex, c2_hex, t).name()
+            stops.append((p1, col))
+
+        return {
+            "thumb": thumb,
+            "thumb_hover": thumb_hover,
+            "track_stops": stops,
+        }
+
+    def set_mode(self, mode: str):
+        if not mode:
+            return
+        theme = get_slider_theme(mode)
+        norm_key = "cool"
+        k = str(mode).lower().strip()
+        if k in ["heat", "quente", "calor"]:
+            norm_key = "heat"
+        elif k in ["dry", "desumidificar", "deshumidificar"]:
+            norm_key = "dry"
+        elif k in ["fan", "ventilar", "ventilador"]:
+            norm_key = "fan"
+        elif k in ["auto", "automático", "automatico"]:
+            norm_key = "auto"
+
+        if norm_key == self._current_mode and self._color_ratio >= 1.0:
+            return
+
+        self._current_mode = norm_key
+        if not self.isVisible():
+            self._color_anim.stop()
+            self._prev_theme = theme
+            self._curr_theme = theme
+            self._color_ratio = 1.0
+            self.update()
+        else:
+            self._prev_theme = self._get_interpolated_theme(self._color_ratio)
+            self._curr_theme = theme
+            self._color_anim.stop()
+            self._color_ratio = 0.0
+            self._color_anim.setStartValue(0.0)
+            self._color_anim.setEndValue(1.0)
+            self._color_anim.start()
 
     def setValue(self, val):
         clamped = max(self.minimum(), min(self.maximum(), int(val)))
@@ -743,6 +985,11 @@ class ModernTrackSlider(QtWidgets.QSlider):
             super().setValue(int(val))
         self.update()
 
+    def set_theme_colors(self, groove_color: str, groove_border: str):
+        self._groove_color = groove_color
+        self._groove_border = groove_border
+        self.update()
+
     def paintEvent(self, event):
         p = QtGui.QPainter(self)
         p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
@@ -755,9 +1002,12 @@ class ModernTrackSlider(QtWidgets.QSlider):
         track_rect = QtCore.QRectF(0.0, track_y, w, track_h)
         radius = 14.0
 
+        groove_col = QtGui.QColor(getattr(self, "_groove_color", "#181A22"))
+        groove_border = QtGui.QColor(getattr(self, "_groove_border", "rgba(255, 255, 255, 14)"))
+
         # 1. Base Track (Groove)
-        p.setPen(QtGui.QPen(QtGui.QColor(255, 255, 255, 14), 1.0))
-        p.setBrush(QtGui.QBrush(QtGui.QColor("#181A22")))
+        p.setPen(QtGui.QPen(groove_border, 1.0))
+        p.setBrush(QtGui.QBrush(groove_col))
         p.drawRoundedRect(track_rect, radius, radius)
 
         # 2. Pill Position (Circle: 24x24)
@@ -777,11 +1027,11 @@ class ModernTrackSlider(QtWidgets.QSlider):
         p.save()
         p.setClipPath(track_path)
 
+        active_theme = self._get_interpolated_theme(self._color_ratio)
+
         grad = QtGui.QLinearGradient(0.0, 0.0, grad_end_x, 0.0)
-        grad.setColorAt(0.0, QtGui.QColor("#242732"))
-        grad.setColorAt(0.4, QtGui.QColor("#3A3734"))
-        grad.setColorAt(0.85, QtGui.QColor("#544C44"))
-        grad.setColorAt(1.0, QtGui.QColor("#60564C"))
+        for pos, col_hex in active_theme["track_stops"]:
+            grad.setColorAt(pos, QtGui.QColor(col_hex))
 
         p.setPen(QtCore.Qt.PenStyle.NoPen)
         p.setBrush(QtGui.QBrush(grad))
@@ -791,7 +1041,7 @@ class ModernTrackSlider(QtWidgets.QSlider):
 
         # 4. Pill (Handle: Circle)
         pill_rect = QtCore.QRectF(pill_x, pill_y, pill_w, pill_h)
-        pill_col = QtGui.QColor("#EDE4DC" if (self._hovered or self._dragging) else "#D4C5B9")
+        pill_col = QtGui.QColor(active_theme["thumb_hover"] if (self._hovered or self._dragging) else active_theme["thumb"])
         p.setPen(QtCore.Qt.PenStyle.NoPen)
         p.setBrush(QtGui.QBrush(pill_col))
         p.drawEllipse(pill_rect)
@@ -864,23 +1114,36 @@ class ControlCard(QtWidgets.QFrame):
         # Configurar recursos específicos por card
         self._init_icons()
 
+    def update_palette(self, palette: dict):
+        self._palette = palette
+        self._apply_style()
+        self.title_label.setStyleSheet(f"color: {palette['text_secondary']}; font-size: 11px; font-weight: 500;")
+        self.value_label.setStyleSheet(f"color: {palette['text_primary']}; font-size: 14px; font-weight: 600;")
+        if not self.is_sleep:
+            self.arrow.setStyleSheet(f"color: {palette['text_secondary']}; font-size: 13px; font-weight: bold;")
+        self._init_icons()
+
     def _init_icons(self):
+        palette = getattr(self, "_palette", None)
+        icon_col = palette["icon_color"] if palette else "#FFFFFF"
+
         if self.key == "mode":
             # Padding 2.5 para harmonizar a escala do floco com a altura de 24px dos demais ícones
-            pix = load_user_svg("mode.svg", 30, 30, padding=2.5, color="#FFFFFF")
+            pix = load_user_svg("mode.svg", 30, 30, padding=2.5, color=icon_col)
             self.icon_label.setPixmap(pix)
 
         elif self.key == "fan":
-            # Fan speed: Traço encorpado (stroke_width=1.4) para manter branco puro e rotação suave
-            self.fan_base_pixmap = load_user_svg("fan-speed.svg", 30, 30, padding=1.0, color="#FFFFFF", stroke_width=1.4)
+            # Fan speed: Traço encorpado (stroke_width=1.4) e rotação suave
+            self.fan_base_pixmap = load_user_svg("fan-speed.svg", 30, 30, padding=1.0, color=icon_col, stroke_width=1.4)
             self.icon_label.setPixmap(self.fan_base_pixmap)
-            self._fan_angle = 0.0
-            self._fan_timer = QtCore.QTimer(self)
-            self._fan_timer.setInterval(28)  # ~35 FPS para giro suave e macio
-            self._fan_timer.timeout.connect(self._step_fan_rotation)
+            if not hasattr(self, "_fan_timer"):
+                self._fan_angle = 0.0
+                self._fan_timer = QtCore.QTimer(self)
+                self._fan_timer.setInterval(28)  # ~35 FPS para giro suave e macio
+                self._fan_timer.timeout.connect(self._step_fan_rotation)
 
         elif self.key == "sleep":
-            pix = load_user_svg("crescent-moon.svg", 30, 30, padding=1, color="#FFFFFF")
+            pix = load_user_svg("crescent-moon.svg", 30, 30, padding=1, color=icon_col)
             self.icon_label.setPixmap(pix)
 
         elif self.key == "airflow":
@@ -891,13 +1154,24 @@ class ControlCard(QtWidgets.QFrame):
                 for i in range(28):
                     fn = os.path.join(frames_dir, f"frame_{i:02d}.png")
                     if os.path.exists(fn):
-                        pm = QtGui.QPixmap(fn).scaled(30, 30, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.SmoothTransformation)
-                        self.air_frames.append(pm)
+                        orig_pm = QtGui.QPixmap(fn).scaled(30, 30, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.SmoothTransformation)
+                        if icon_col != "#FFFFFF":
+                            tinted = QtGui.QPixmap(orig_pm.size())
+                            tinted.fill(QtCore.Qt.GlobalColor.transparent)
+                            tp = QtGui.QPainter(tinted)
+                            tp.drawPixmap(0, 0, orig_pm)
+                            tp.setCompositionMode(QtGui.QPainter.CompositionMode.CompositionMode_SourceIn)
+                            tp.fillRect(tinted.rect(), QtGui.QColor(icon_col))
+                            tp.end()
+                            self.air_frames.append(tinted)
+                        else:
+                            self.air_frames.append(orig_pm)
 
-            self._air_frame_idx = 0
-            self._air_timer = QtCore.QTimer(self)
-            self._air_timer.setInterval(42)  # 24 FPS padrão de animação
-            self._air_timer.timeout.connect(self._step_air_frame)
+            if not hasattr(self, "_air_timer"):
+                self._air_frame_idx = 0
+                self._air_timer = QtCore.QTimer(self)
+                self._air_timer.setInterval(42)  # 24 FPS padrão de animação
+                self._air_timer.timeout.connect(self._step_air_frame)
 
             if self.air_frames:
                 self.icon_label.setPixmap(self.air_frames[0])
@@ -979,24 +1253,40 @@ class ControlCard(QtWidgets.QFrame):
         self._check_airflow_animation()
 
     def _apply_style(self):
+        palette = getattr(self, "_palette", None)
+        if palette:
+            card_active = palette["card_active"]
+            border_active = palette["border_active"]
+            card_bg = palette["card_bg"]
+            border_color = palette["border_color"]
+            card_hover = palette["card_hover"]
+            border_hover = palette["border_hover"]
+        else:
+            card_active = CARD_ACTIVE
+            border_active = "rgba(255, 255, 255, 0.28)"
+            card_bg = CARD_BG
+            border_color = BORDER_COLOR
+            card_hover = CARD_HOVER
+            border_hover = "rgba(255, 255, 255, 0.16)"
+
         if self.is_expanded:
             self.setStyleSheet(f"""
                 QFrame#ControlCard {{
-                    background-color: {CARD_ACTIVE};
-                    border: 1px solid rgba(255, 255, 255, 0.28);
+                    background-color: {card_active};
+                    border: 1px solid {border_active};
                     border-radius: 18px;
                 }}
             """)
         else:
             self.setStyleSheet(f"""
                 QFrame#ControlCard {{
-                    background-color: {CARD_BG};
-                    border: 1px solid {BORDER_COLOR};
+                    background-color: {card_bg};
+                    border: 1px solid {border_color};
                     border-radius: 18px;
                 }}
                 QFrame#ControlCard:hover {{
-                    background-color: {CARD_HOVER};
-                    border: 1px solid rgba(255, 255, 255, 0.16);
+                    background-color: {card_hover};
+                    border: 1px solid {border_hover};
                 }}
             """)
 
@@ -1014,13 +1304,8 @@ class OptionsDrawer(QtWidgets.QFrame):
         super().__init__(parent)
         self.current_category = None
         self.setObjectName("OptionsDrawer")
-        self.setStyleSheet("""
-            QFrame#OptionsDrawer {{
-                background-color: #13151C;
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 14px;
-            }}
-        """)
+        self.palette = THEME_PALETTES["dark"]
+        self._apply_style()
 
         self.layout = QtWidgets.QHBoxLayout(self)
         self.layout.setContentsMargins(8, 8, 8, 8)
@@ -1032,6 +1317,21 @@ class OptionsDrawer(QtWidgets.QFrame):
         self.anim = QtCore.QPropertyAnimation(self, b"fixed_height_prop", self)
         self.anim.setDuration(180)
         self.anim.setEasingCurve(QtCore.QEasingCurve.Type.InOutCubic)
+
+    def update_palette(self, palette: dict):
+        self.palette = palette
+        self._apply_style()
+
+    def _apply_style(self):
+        bg = self.palette.get("drawer_bg", "#13151C")
+        border = self.palette.get("border_color", "rgba(255, 255, 255, 0.08)")
+        self.setStyleSheet(f"""
+            QFrame#OptionsDrawer {{
+                background-color: {bg};
+                border: 1px solid {border};
+                border-radius: 14px;
+            }}
+        """)
 
     def _get_fixed_height(self):
         return self.height()
@@ -1049,6 +1349,12 @@ class OptionsDrawer(QtWidgets.QFrame):
             if w:
                 w.deleteLater()
 
+        btn_bg = self.palette.get("card_bg", "#181A22")
+        btn_hover = self.palette.get("card_hover", "#2F3444")
+        btn_active = self.palette.get("card_active", "#272B38")
+        text_primary = self.palette.get("text_primary", "#E2E8F0")
+        border_color = self.palette.get("border_color", "rgba(255, 255, 255, 0.08)")
+
         for item in options:
             if isinstance(item, tuple):
                 canonical_key, label = item
@@ -1059,9 +1365,9 @@ class OptionsDrawer(QtWidgets.QFrame):
             btn.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
             is_active = (canonical_key.lower() == selected_value.lower())
 
-            bg = "#272B38" if is_active else "#181A22"
-            col = "#38BDF8" if is_active else "#E2E8F0"
-            border = "rgba(56, 189, 248, 0.5)" if is_active else "rgba(255, 255, 255, 0.08)"
+            bg = btn_active if is_active else btn_bg
+            col = "#38BDF8" if is_active else text_primary
+            border = "rgba(56, 189, 248, 0.6)" if is_active else border_color
 
             btn.setStyleSheet(f"""
                 QPushButton {{
@@ -1075,8 +1381,8 @@ class OptionsDrawer(QtWidgets.QFrame):
                     font-family: 'Segoe UI', sans-serif;
                 }}
                 QPushButton:hover {{
-                    background-color: #2F3444;
-                    color: #FFFFFF;
+                    background-color: {btn_hover};
+                    color: {"#38BDF8" if is_active else ("#000000" if self.palette.get("is_light") else "#FFFFFF")};
                 }}
             """)
             btn.clicked.connect(lambda checked=False, k=canonical_key, c=category: self._on_opt_click(c, k))
@@ -1200,8 +1506,25 @@ class ThinQCommandWorker(QtCore.QThread):
 
 
 
+def is_windows_dark_mode() -> bool:
+    """Verifica no registro do Windows se o tema de aplicativos e escuro (0) ou claro (1)."""
+    try:
+        import winreg
+        key = winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER,
+            r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
+            0,
+            winreg.KEY_READ
+        )
+        val, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
+        winreg.CloseKey(key)
+        return bool(val == 0)
+    except Exception:
+        return True
+
+
 class ACPanelWidget(QtWidgets.QFrame):
-    """Painel Principal Proporcional com Estética macOS / Windows 11 Flyout"""
+    """Painel Principal Proporcional com Estetica macOS / Windows 11 Flyout"""
 
     power_toggled = QtCore.Signal(bool)
     temp_changed = QtCore.Signal(float)
@@ -1221,10 +1544,17 @@ class ACPanelWidget(QtWidgets.QFrame):
         self.temp_unit = str(prefs.value("temp_unit", "C"))
         if self.temp_unit not in ["C", "F"]:
             self.temp_unit = "C"
+        self.theme_mode = str(prefs.value("theme", "system"))
+        if self.theme_mode not in ["system", "light", "dark", "black"]:
+            self.theme_mode = "system"
+        self.ac_color = str(prefs.value("ac_color", "white"))
+        if self.ac_color not in ["white", "black"]:
+            self.ac_color = "white"
+
         self._menu_open = False
         self.connection_status = "connected"
 
-        self.is_powered_on = False  # Começa seguro e sincroniza imediatamente com o estado real do aparelho
+        self.is_powered_on = False  # Comeca seguro e sincroniza imediatamente com o estado real do aparelho
         self.room_temp = 22.5
         self.target_temp = 21.0
         self.eco_mode = False
@@ -1239,16 +1569,140 @@ class ACPanelWidget(QtWidgets.QFrame):
         self._temp_debounce_timer.setInterval(400)
         self._temp_debounce_timer.timeout.connect(self._send_temp_command)
 
+        self.setFixedWidth(450)
+        self._build_ui()
+        self.apply_theme()
+
+    def _resolve_theme(self) -> str:
+        """Resolve o modo de tema atual ('system', 'light', 'dark', 'black') para um tema concreto ('light', 'dark', 'black')."""
+        if self.theme_mode == "system":
+            return "dark" if is_windows_dark_mode() else "light"
+        return self.theme_mode
+
+    def set_theme_mode(self, mode: str):
+        if mode not in ["system", "light", "dark", "black"] or (self.theme_mode == mode and hasattr(self, '_current_resolved_theme')):
+            return
+        self.theme_mode = mode
+        prefs = QtCore.QSettings("LGAirConditioner", "Preferences")
+        prefs.setValue("theme", mode)
+        self.apply_theme()
+
+    def set_ac_color(self, color: str):
+        if color not in ["white", "black"] or self.ac_color == color:
+            return
+        self.ac_color = color
+        prefs = QtCore.QSettings("LGAirConditioner", "Preferences")
+        prefs.setValue("ac_color", color)
+        if hasattr(self, 'ac_hero'):
+            self.ac_hero.set_ac_color(color)
+
+    def apply_theme(self):
+        resolved = self._resolve_theme()
+        self._current_resolved_theme = resolved
+        palette = THEME_PALETTES.get(resolved, THEME_PALETTES["dark"])
+
+        # 1. Painel principal
         self.setStyleSheet(f"""
             QFrame#ACPanel {{
-                background-color: {BG_COLOR};
-                border: 1px solid rgba(255, 255, 255, 0.12);
+                background-color: {palette["bg_color"]};
+                border: 1px solid {palette["panel_border"]};
                 border-radius: 28px;
             }}
         """)
 
-        self.setFixedWidth(450)
-        self._build_ui()
+        # 2. Header
+        if hasattr(self, 'lbl_room_temp'):
+            self.lbl_room_temp.setStyleSheet(f"color: {palette['text_primary']}; font-size: 15px; font-family: 'Segoe UI', sans-serif;")
+        if hasattr(self, 'therm_icon'):
+            self.therm_icon.setPixmap(load_user_svg("thermometer.svg", 22, 22, padding=0, color=palette["icon_color"]))
+        if hasattr(self, 'btn_power'):
+            self.btn_power.setStyleSheet(f"""
+                QPushButton#PowerButton {{
+                    background-color: {palette["power_bg"]};
+                    border: 1px solid {palette["border_color"]};
+                    border-radius: 22px;
+                }}
+                QPushButton#PowerButton:hover {{
+                    background-color: {palette["power_hover"]};
+                    border: 1px solid {palette["border_hover"]};
+                }}
+                QPushButton#PowerButton:pressed {{
+                    background-color: {palette["power_pressed"]};
+                }}
+            """)
+            self._update_power_button()
+
+        # 3. Target temp row & Eco mode card
+        if hasattr(self, 'lbl_target_num'):
+            self.lbl_target_num.setStyleSheet(f"color: {palette['text_primary']}; font-size: 50px; font-weight: 700; line-height: 1;")
+        if hasattr(self, 'lbl_target_unit'):
+            self.lbl_target_unit.setStyleSheet(f"color: {palette['text_secondary']}; font-size: 22px; font-weight: 500; margin-bottom: 8px;")
+
+        if hasattr(self, 'eco_card'):
+            self.eco_card.setStyleSheet(f"""
+                QFrame#EcoCard {{
+                    background-color: {palette["card_bg"]};
+                    border: 1px solid {palette["border_color"]};
+                    border-radius: 17px;
+                }}
+                QFrame#EcoCard:hover {{
+                    background-color: {palette["card_hover"]};
+                    border: 1px solid {palette["border_hover"]};
+                }}
+            """)
+        if hasattr(self, 'eco_icon'):
+            self.eco_icon.setPixmap(load_user_icon("eco_mode.png", 24, 24, color=palette["icon_color"]))
+        if hasattr(self, 'toggle_eco'):
+            self.toggle_eco.set_light_mode(resolved == "light")
+
+        # 4. Stepper buttons & Slider
+        if hasattr(self, 'btn_minus'):
+            self.btn_minus.setIcon(create_stepper_icon("minus", 38, color=palette["stepper_color"]))
+            self.btn_minus.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: {palette["card_bg"]};
+                    border: 1px solid {palette["border_color"]};
+                    border-radius: 19px;
+                }}
+                QPushButton:hover {{
+                    background-color: {palette["card_hover"]};
+                    border: 1px solid {palette["border_hover"]};
+                }}
+            """)
+        if hasattr(self, 'btn_plus'):
+            self.btn_plus.setIcon(create_stepper_icon("plus", 38, color=palette["stepper_color"]))
+            self.btn_plus.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: {palette["card_bg"]};
+                    border: 1px solid {palette["border_color"]};
+                    border-radius: 19px;
+                }}
+                QPushButton:hover {{
+                    background-color: {palette["card_hover"]};
+                    border: 1px solid {palette["border_hover"]};
+                }}
+            """)
+        if hasattr(self, 'slider'):
+            self.slider.set_theme_colors(palette["slider_groove"], palette["slider_groove_border"])
+        if hasattr(self, 'lbl_slider_min'):
+            self.lbl_slider_min.setStyleSheet(f"color: {palette['text_muted']}; font-size: 11px; font-weight: 500;")
+        if hasattr(self, 'lbl_slider_max'):
+            self.lbl_slider_max.setStyleSheet(f"color: {palette['text_muted']}; font-size: 11px; font-weight: 500;")
+
+        # 5. 4 Control Cards
+        for c in [getattr(self, 'card_mode', None), getattr(self, 'card_fan', None), getattr(self, 'card_sleep', None), getattr(self, 'card_airflow', None)]:
+            if c:
+                c.update_palette(palette)
+
+        # 6. Drawer
+        if hasattr(self, 'drawer'):
+            self.drawer.update_palette(palette)
+
+        # 7. Footer
+        if hasattr(self, 'lbl_conn'):
+            self.lbl_conn.setStyleSheet(f"color: {palette['text_secondary']}; font-size: 12px; font-weight: 500;")
+        if hasattr(self, 'btn_settings'):
+            self.btn_settings.setIcon(QtGui.QIcon(svg_to_pixmap(SVG_SLIDERS, 20, 20, palette["text_secondary"])))
 
     def tr_text(self, key: str) -> str:
         lang_dict = TRANSLATIONS.get(self.language, TRANSLATIONS["en"])
@@ -1339,35 +1793,77 @@ class ACPanelWidget(QtWidgets.QFrame):
 
     def _open_settings_menu(self):
         self._menu_open = True
+        resolved = self._resolve_theme()
+        pal = THEME_PALETTES.get(resolved, THEME_PALETTES["dark"])
+
         menu = QtWidgets.QMenu(self)
-        menu.setStyleSheet("""
-            QMenu {
-                background-color: #181920;
-                color: #FFFFFF;
-                border: 1px solid rgba(255, 255, 255, 0.12);
+        menu_css = f"""
+            QMenu {{
+                background-color: {pal["menu_bg"]};
+                color: {pal["menu_color"]};
+                border: 1px solid {pal["menu_border"]};
                 border-radius: 12px;
                 padding: 6px;
                 font-family: 'Segoe UI', sans-serif;
                 font-size: 13px;
-            }
-            QMenu::item {
+            }}
+            QMenu::item {{
                 padding: 7px 24px 7px 14px;
                 border-radius: 6px;
-            }
-            QMenu::item:selected {
-                background-color: #272A36;
-                color: #38BDF8;
-            }
-            QMenu::separator {
+            }}
+            QMenu::item:selected {{
+                background-color: {pal["menu_item_hover_bg"]};
+                color: {pal["menu_item_hover_color"]};
+            }}
+            QMenu::separator {{
                 height: 1px;
-                background-color: rgba(255, 255, 255, 0.08);
+                background-color: {pal["menu_separator"]};
                 margin: 4px 6px;
-            }
-        """)
+            }}
+        """
+        menu.setStyleSheet(menu_css)
 
-        # 1. Unidade de Temperatura
+        # 1. Background / Theme
+        menu_theme = menu.addMenu(self.tr_text("theme"))
+        menu_theme.setStyleSheet(menu_css)
+
+        act_system = menu_theme.addAction(self.tr_text("theme_system"))
+        act_system.setCheckable(True)
+        act_system.setChecked(self.theme_mode == "system")
+        act_system.triggered.connect(lambda: self.set_theme_mode("system"))
+
+        act_light = menu_theme.addAction(self.tr_text("theme_light"))
+        act_light.setCheckable(True)
+        act_light.setChecked(self.theme_mode == "light")
+        act_light.triggered.connect(lambda: self.set_theme_mode("light"))
+
+        act_dark = menu_theme.addAction(self.tr_text("theme_dark"))
+        act_dark.setCheckable(True)
+        act_dark.setChecked(self.theme_mode == "dark")
+        act_dark.triggered.connect(lambda: self.set_theme_mode("dark"))
+
+        act_black = menu_theme.addAction(self.tr_text("theme_black"))
+        act_black.setCheckable(True)
+        act_black.setChecked(self.theme_mode == "black")
+        act_black.triggered.connect(lambda: self.set_theme_mode("black"))
+
+        # 2. Cor do Ar-Condicionado (Mockup)
+        menu_ac = menu.addMenu(self.tr_text("ac_color"))
+        menu_ac.setStyleSheet(menu_css)
+
+        act_white = menu_ac.addAction(self.tr_text("ac_color_white"))
+        act_white.setCheckable(True)
+        act_white.setChecked(self.ac_color == "white")
+        act_white.triggered.connect(lambda: self.set_ac_color("white"))
+
+        act_ac_black = menu_ac.addAction(self.tr_text("ac_color_black"))
+        act_ac_black.setCheckable(True)
+        act_ac_black.setChecked(self.ac_color == "black")
+        act_ac_black.triggered.connect(lambda: self.set_ac_color("black"))
+
+        # 3. Unidade de Temperatura
         menu_unit = menu.addMenu(self.tr_text("temp_unit"))
-        menu_unit.setStyleSheet(menu.styleSheet())
+        menu_unit.setStyleSheet(menu_css)
         act_c = menu_unit.addAction(self.tr_text("celsius"))
         act_c.setCheckable(True)
         act_c.setChecked(self.temp_unit == "C")
@@ -1378,9 +1874,9 @@ class ACPanelWidget(QtWidgets.QFrame):
         act_f.setChecked(self.temp_unit == "F")
         act_f.triggered.connect(lambda: self.set_temp_unit("F"))
 
-        # 2. Idioma / Language
+        # 3. Idioma / Language
         menu_lang = menu.addMenu(self.tr_text("language"))
-        menu_lang.setStyleSheet(menu.styleSheet())
+        menu_lang.setStyleSheet(menu_css)
         act_en = menu_lang.addAction("English")
         act_en.setCheckable(True)
         act_en.setChecked(self.language == "en")
@@ -1398,13 +1894,13 @@ class ACPanelWidget(QtWidgets.QFrame):
 
         menu.addSeparator()
 
-        # 3. Sincronizar com ThinQ
+        # 4. Sincronizar com ThinQ
         act_sync = menu.addAction(self.tr_text("sync_thinq"))
         act_sync.triggered.connect(self.refresh_status_from_thinq)
 
         menu.addSeparator()
 
-        # 4. Iniciar com o Windows
+        # 5. Iniciar com o Windows
         act_autostart = menu.addAction(self.tr_text("autostart"))
         act_autostart.setCheckable(True)
         act_autostart.setChecked(is_autostart_enabled())
@@ -1475,8 +1971,11 @@ class ACPanelWidget(QtWidgets.QFrame):
         # 2. HERO: Ar Condicionado Split com Cortina de Ar Ondulante
         # -------------------------------------------------------------
         self.ac_hero = AnimatedAirCurtainHero(self)
+        self.ac_hero.set_ac_color(getattr(self, 'ac_color', 'white'))
         self.ac_hero.set_power(self.is_powered_on)
         self.ac_hero.set_mode(self.current_mode)
+        self.ac_hero.set_fan(self.fan_speed)
+        self.ac_hero.set_temp(self.target_temp)
         self.ac_hero.set_airflow(self.airflow_state)
         layout.addWidget(self.ac_hero)
 
@@ -1568,6 +2067,7 @@ class ACPanelWidget(QtWidgets.QFrame):
         self.slider.setMinimum(18)
         self.slider.setMaximum(30)
         self.slider.setValue(int(self.target_temp))
+        self.slider.set_mode(self.current_mode)
         self.slider.valueChanged.connect(self._slider_changed)
         slider_row.addWidget(self.slider)
 
@@ -1710,12 +2210,14 @@ class ACPanelWidget(QtWidgets.QFrame):
             self.current_mode = option
             self.card_mode.set_value(self.tr_text(option))
             self.ac_hero.set_mode(option)
+            self.slider.set_mode(option)
             mode_map = {"Cool": "COOL", "Heat": "HEAT", "Fan": "FAN", "Dry": "AIR_DRY"}
             if option in mode_map:
                 self._send_thinq_command({"airConJobMode": {"currentJobMode": mode_map[option]}})
         elif category == "fan":
             self.fan_speed = option
             self.card_fan.set_value(self.tr_text(option))
+            self.ac_hero.set_fan(option)
             fan_map = {"Auto": "AUTO", "Low": "LOW", "Mid": "MID", "High": "HIGH"}
             if option in fan_map:
                 self._send_thinq_command({"airFlow": {"windStrength": fan_map[option]}})
@@ -1768,6 +2270,7 @@ class ACPanelWidget(QtWidgets.QFrame):
         if "targetTemperature" in temp:
             t = float(temp["targetTemperature"])
             self.target_temp = t
+            self.ac_hero.set_temp(t)
             self.slider.blockSignals(True)
             self.slider.setValue(int(t))
             self.slider.blockSignals(False)
@@ -1791,12 +2294,14 @@ class ACPanelWidget(QtWidgets.QFrame):
             self.current_mode = formatted
             self.card_mode.set_value(self.tr_text(formatted))
             self.ac_hero.set_mode(formatted)
+            self.slider.set_mode(formatted)
 
         flow = data.get("airFlow", {})
         wind = flow.get("windStrength")
         if wind:
             self.fan_speed = wind.capitalize()
             self.card_fan.set_value(self.tr_text(self.fan_speed))
+            self.ac_hero.set_fan(self.fan_speed)
 
         swing = data.get("windDirection", {})
         if "rotateUpDown" in swing:
@@ -1835,8 +2340,20 @@ class ACPanelWidget(QtWidgets.QFrame):
         self.card_sleep.set_power(power)
         self.card_airflow.set_power(power)
 
+    def set_mode(self, mode: str):
+        """Define o modo de operação do ar condicionado e sincroniza os componentes visuais"""
+        self.current_mode = mode
+        if hasattr(self, 'card_mode'):
+            self.card_mode.set_value(self.tr_text(mode))
+        if hasattr(self, 'ac_hero'):
+            self.ac_hero.set_mode(mode)
+        if hasattr(self, 'slider'):
+            self.slider.set_mode(mode)
+
     def _update_power_button(self):
-        col = POWER_CREAM if self.is_powered_on else "#64748B"
+        resolved = self._resolve_theme()
+        pal = THEME_PALETTES.get(resolved, THEME_PALETTES["dark"])
+        col = pal.get("power_color", POWER_CREAM) if self.is_powered_on else pal.get("power_off_color", "#64748B")
         pix = svg_to_pixmap(SVG_POWER, 22, 22, col)
         self.btn_power.setIcon(QtGui.QIcon(pix))
         self.btn_power.setIconSize(QtCore.QSize(22, 22))
@@ -1849,6 +2366,7 @@ class ACPanelWidget(QtWidgets.QFrame):
 
     def _slider_changed(self, val):
         self.target_temp = float(val)
+        self.ac_hero.set_temp(self.target_temp)
         if self.temp_unit == "F":
             self.lbl_target_num.setText(str(int(round(self.target_temp * 1.8 + 32))))
         else:
@@ -2120,8 +2638,9 @@ class TrayApplication:
         self.tray.setToolTip("LG Dual Inverter - Ar Condicionado")
 
         self._current_theme_is_light = is_windows_taskbar_light()
+        self._current_apps_dark = is_windows_dark_mode()
         self._theme_timer = QtCore.QTimer(self.app)
-        self._theme_timer.setInterval(4000)
+        self._theme_timer.setInterval(3000)
         self._theme_timer.timeout.connect(self._check_taskbar_theme)
         self._theme_timer.start()
 
@@ -2172,6 +2691,12 @@ class TrayApplication:
         if is_light != self._current_theme_is_light:
             self._current_theme_is_light = is_light
             self.tray.setIcon(create_tray_icon())
+
+        apps_dark = is_windows_dark_mode()
+        if apps_dark != self._current_apps_dark:
+            self._current_apps_dark = apps_dark
+            if getattr(self.window.panel, "theme_mode", "system") == "system":
+                self.window.panel.apply_theme()
 
     def _toggle_autostart(self):
         new_state = self.action_autostart.isChecked()

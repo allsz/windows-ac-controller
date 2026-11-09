@@ -1,0 +1,280 @@
+<body style='margin:0;background:#0b0c10;color:#9aa1af;font:13px system-ui;display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:16px'><div style='background:#12141a;border-radius:16px;padding:12px;text-align:center'><svg class="a1-root" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250"
+ role="img" aria-label="Ar-condicionado ligado">
+<style>
+.a1-root{--louver:35deg;--air:#7dd3fc;--period:2.2s}
+.a1-flap{transform-box:fill-box;transform-origin:50% 50%;
+  transform:scaleY(max(.1,cos(var(--louver))));
+  transition:transform .9s cubic-bezier(.4,0,.2,1)}
+.a1-flap.a1-swing{animation:a1-sw 4.2s ease-in-out infinite alternate}
+@keyframes a1-sw{from{transform:scaleY(.94)}to{transform:scaleY(.14)}}
+.a1-soft{fill:none;stroke:#7dd3fc;stroke-width:15;stroke-linecap:butt;
+  stroke-dasharray:80 50;opacity:.30;animation:a1-flow calc(var(--period)*1.5) linear infinite}
+.a1-veil{animation:a1-breath calc(var(--period)*2) ease-in-out infinite alternate}
+.a1-air{}
+.a1-tick{animation:a1-pulse 2.6s ease-in-out infinite}
+.a1-soft.alt{opacity:.46}
+@keyframes a1-flow{to{stroke-dashoffset:-130}}
+@keyframes a1-breath{from{opacity:.5}to{opacity:1}}
+@keyframes a1-swayx{from{transform:translate(-4px,114px)}to{transform:translate(4px,114px)}}
+@keyframes a1-pulse{50%{opacity:.4}}
+@media (prefers-reduced-motion: reduce){.a1-soft,.a1-veil,.a1-flap,.a1-tick,.a1-air{animation:none!important}}
+</style>
+<defs>
+  <linearGradient id="a1-body" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eef0f4"/>
+  </linearGradient>
+  <linearGradient id="a1-lip" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#dfe2e8"/><stop offset="1" stop-color="#c9cdd6"/>
+  </linearGradient>
+  <linearGradient id="a1-line" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#cfd4dc" stop-opacity="0"/><stop offset=".5" stop-color="#cfd4dc"/><stop offset="1" stop-color="#cfd4dc" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="a1-slot" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#0d0f14"/><stop offset="1" stop-color="#1c1f28"/>
+  </linearGradient>
+  <linearGradient id="a1-flapg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e1e4ea"/>
+  </linearGradient>
+  <linearGradient id="a1-veilg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#7dd3fc" stop-opacity=".32"/><stop offset="1" stop-color="#7dd3fc" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="a1-shadow" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#000000" stop-opacity="0.30"/>
+    <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+  </linearGradient>
+</defs>
+
+<!-- soft drop shadow -->
+<rect x="22" y="24" width="356" height="96" rx="20" fill="url(#a1-shadow)"/>
+
+<!-- corpo -->
+<g>
+  <path d="M30 94 H370 V104 Q370 116 358 116 H42 Q30 116 30 104 Z" fill="url(#a1-lip)"/>
+  <rect x="20" y="14" width="360" height="86" rx="18" fill="url(#a1-body)"/>
+</g>
+<rect x="20.5" y="14.5" width="359" height="85" rx="17.5" fill="none" stroke="#fff" stroke-opacity=".85"/>
+<rect x="56" y="76.5" width="288" height="1.2" fill="url(#a1-line)"/>
+<rect x="196.3" y="83.5" width="1.5" height="4.5" rx=".75" fill="#7dd3fc" class="a1-tick" transform="rotate(-22 197.05 88.0)"/><rect x="199.25" y="82" width="1.5" height="6" rx=".75" fill="#7dd3fc" class="a1-tick" transform="rotate(0 200.0 88)"/><rect x="202.2" y="83.5" width="1.5" height="4.5" rx=".75" fill="#7dd3fc" class="a1-tick" transform="rotate(22 202.95 88.0)"/>
+
+<!-- saída de ar -->
+<rect x="46" y="102" width="308" height="10" rx="5" fill="url(#a1-slot)"/>
+<g class="a1-flap" >
+  <rect x="48" y="103.5" width="304" height="7" rx="3.5" fill="url(#a1-flapg)"/>
+  <rect x="98.7" y="103.5" width=".9" height="7" fill="#bcc2cc"/><rect x="149.3" y="103.5" width=".9" height="7" fill="#bcc2cc"/><rect x="250.7" y="103.5" width=".9" height="7" fill="#bcc2cc"/><rect x="301.3" y="103.5" width=".9" height="7" fill="#bcc2cc"/><rect x="199.1" y="103.5" width="1.8" height="7" fill="#aab1bd"/>
+</g>
+<g transform="skewX(-5) translate(3.41 0)"><g fill="#fff" opacity=".95" transform="translate(.8 .9)"><rect x="336.90" y="39.00" width="7.50" height="2.50" rx="1.25"/><rect x="343.40" y="40.75" width="2.50" height="7.25" rx="1.25"/><rect x="336.90" y="47.25" width="7.50" height="2.50" rx="1.25"/><rect x="335.40" y="49.00" width="2.50" height="7.25" rx="1.25"/><rect x="336.90" y="55.50" width="7.50" height="2.50" rx="1.25"/><rect x="357.50" y="40.75" width="2.50" height="7.25" rx="1.25"/><rect x="357.50" y="49.00" width="2.50" height="7.25" rx="1.25"/><circle cx="364.6" cy="41.6" r="1.9" fill="none" stroke="#fff" stroke-width="1.3"/></g><g fill="#4aa8d8" class="a1-num"><rect x="336.90" y="39.00" width="7.50" height="2.50" rx="1.25"/><rect x="343.40" y="40.75" width="2.50" height="7.25" rx="1.25"/><rect x="336.90" y="47.25" width="7.50" height="2.50" rx="1.25"/><rect x="335.40" y="49.00" width="2.50" height="7.25" rx="1.25"/><rect x="336.90" y="55.50" width="7.50" height="2.50" rx="1.25"/><rect x="357.50" y="40.75" width="2.50" height="7.25" rx="1.25"/><rect x="357.50" y="49.00" width="2.50" height="7.25" rx="1.25"/><circle cx="364.6" cy="41.6" r="1.9" fill="none" stroke="#4aa8d8" stroke-width="1.3"/></g></g>
+
+<g class="a1-air" transform="translate(0 114)">
+  <path class="a1-veil" d="M48 0 L198 0 L197.5 90.0 L10.7 90.0 Z" fill="url(#a1-veilg)"/>
+  <path class="a1-veil" d="M202 0 L352 0 L389.3 90.0 L202.5 90.0 Z" fill="url(#a1-veilg)"/>
+  <path class="a1-soft" d="M56.0 0 L20.6 90.0" fill="none" stroke="#7dd3fc" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-0.00s"/><path class="a1-soft alt" d="M88.0 0 L60.5 90.0" fill="none" stroke="#7dd3fc" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-0.61s"/><path class="a1-soft" d="M120.0 0 L100.4 90.0" fill="none" stroke="#7dd3fc" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-1.22s"/><path class="a1-soft alt" d="M152.0 0 L140.2 90.0" fill="none" stroke="#7dd3fc" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-1.83s"/><path class="a1-soft" d="M184.0 0 L180.1 90.0" fill="none" stroke="#7dd3fc" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-0.24s"/><path class="a1-soft alt" d="M216.0 0 L219.9 90.0" fill="none" stroke="#7dd3fc" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-0.85s"/><path class="a1-soft" d="M248.0 0 L259.8 90.0" fill="none" stroke="#7dd3fc" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-1.46s"/><path class="a1-soft alt" d="M280.0 0 L299.6 90.0" fill="none" stroke="#7dd3fc" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-2.07s"/><path class="a1-soft" d="M312.0 0 L339.5 90.0" fill="none" stroke="#7dd3fc" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-0.48s"/><path class="a1-soft alt" d="M344.0 0 L379.4 90.0" fill="none" stroke="#7dd3fc" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-1.09s"/>
+</g>
+</svg><div>Cool · 35° · Auto</div></div><div style='background:#12141a;border-radius:16px;padding:12px;text-align:center'><svg class="a2-root" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250"
+ role="img" aria-label="Ar-condicionado ligado">
+<style>
+.a2-root{--louver:75deg;--air:#fb923c;--period:1.4s}
+.a2-flap{transform-box:fill-box;transform-origin:50% 50%;
+  transform:scaleY(max(.1,cos(var(--louver))));
+  transition:transform .9s cubic-bezier(.4,0,.2,1)}
+.a2-flap.a2-swing{animation:a2-sw 4.2s ease-in-out infinite alternate}
+@keyframes a2-sw{from{transform:scaleY(.94)}to{transform:scaleY(.14)}}
+.a2-soft{fill:none;stroke:#fb923c;stroke-width:15;stroke-linecap:butt;
+  stroke-dasharray:80 50;opacity:.30;animation:a2-flow calc(var(--period)*1.5) linear infinite}
+.a2-veil{animation:a2-breath calc(var(--period)*2) ease-in-out infinite alternate}
+.a2-air{}
+.a2-tick{animation:a2-pulse 2.6s ease-in-out infinite}
+.a2-soft.alt{opacity:.46}
+@keyframes a2-flow{to{stroke-dashoffset:-130}}
+@keyframes a2-breath{from{opacity:.5}to{opacity:1}}
+@keyframes a2-swayx{from{transform:translate(-4px,114px)}to{transform:translate(4px,114px)}}
+@keyframes a2-pulse{50%{opacity:.4}}
+@media (prefers-reduced-motion: reduce){.a2-soft,.a2-veil,.a2-flap,.a2-tick,.a2-air{animation:none!important}}
+</style>
+<defs>
+  <linearGradient id="a2-body" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eef0f4"/>
+  </linearGradient>
+  <linearGradient id="a2-lip" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#dfe2e8"/><stop offset="1" stop-color="#c9cdd6"/>
+  </linearGradient>
+  <linearGradient id="a2-line" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#cfd4dc" stop-opacity="0"/><stop offset=".5" stop-color="#cfd4dc"/><stop offset="1" stop-color="#cfd4dc" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="a2-slot" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#0d0f14"/><stop offset="1" stop-color="#1c1f28"/>
+  </linearGradient>
+  <linearGradient id="a2-flapg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e1e4ea"/>
+  </linearGradient>
+  <linearGradient id="a2-veilg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fb923c" stop-opacity=".32"/><stop offset="1" stop-color="#fb923c" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="a2-shadow" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#000000" stop-opacity="0.30"/>
+    <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+  </linearGradient>
+</defs>
+
+<!-- soft drop shadow -->
+<rect x="22" y="24" width="356" height="96" rx="20" fill="url(#a2-shadow)"/>
+
+<!-- corpo -->
+<g>
+  <path d="M30 94 H370 V104 Q370 116 358 116 H42 Q30 116 30 104 Z" fill="url(#a2-lip)"/>
+  <rect x="20" y="14" width="360" height="86" rx="18" fill="url(#a2-body)"/>
+</g>
+<rect x="20.5" y="14.5" width="359" height="85" rx="17.5" fill="none" stroke="#fff" stroke-opacity=".85"/>
+<rect x="56" y="76.5" width="288" height="1.2" fill="url(#a2-line)"/>
+<rect x="196.3" y="83.5" width="1.5" height="4.5" rx=".75" fill="#fb923c" class="a2-tick" transform="rotate(-22 197.05 88.0)"/><rect x="199.25" y="82" width="1.5" height="6" rx=".75" fill="#fb923c" class="a2-tick" transform="rotate(0 200.0 88)"/><rect x="202.2" y="83.5" width="1.5" height="4.5" rx=".75" fill="#fb923c" class="a2-tick" transform="rotate(22 202.95 88.0)"/>
+
+<!-- saída de ar -->
+<rect x="46" y="102" width="308" height="10" rx="5" fill="url(#a2-slot)"/>
+<g class="a2-flap" >
+  <rect x="48" y="103.5" width="304" height="7" rx="3.5" fill="url(#a2-flapg)"/>
+  <rect x="98.7" y="103.5" width=".9" height="7" fill="#bcc2cc"/><rect x="149.3" y="103.5" width=".9" height="7" fill="#bcc2cc"/><rect x="250.7" y="103.5" width=".9" height="7" fill="#bcc2cc"/><rect x="301.3" y="103.5" width=".9" height="7" fill="#bcc2cc"/><rect x="199.1" y="103.5" width="1.8" height="7" fill="#aab1bd"/>
+</g>
+<g transform="skewX(-5) translate(3.41 0)"><g fill="#fff" opacity=".95" transform="translate(.8 .9)"><rect x="336.90" y="39.00" width="7.50" height="2.50" rx="1.25"/><rect x="343.40" y="40.75" width="2.50" height="7.25" rx="1.25"/><rect x="336.90" y="47.25" width="7.50" height="2.50" rx="1.25"/><rect x="335.40" y="49.00" width="2.50" height="7.25" rx="1.25"/><rect x="336.90" y="55.50" width="7.50" height="2.50" rx="1.25"/><rect x="349.50" y="40.75" width="2.50" height="7.25" rx="1.25"/><rect x="351.00" y="47.25" width="7.50" height="2.50" rx="1.25"/><rect x="357.50" y="40.75" width="2.50" height="7.25" rx="1.25"/><rect x="357.50" y="49.00" width="2.50" height="7.25" rx="1.25"/><circle cx="364.6" cy="41.6" r="1.9" fill="none" stroke="#fff" stroke-width="1.3"/></g><g fill="#e8812f" class="a2-num"><rect x="336.90" y="39.00" width="7.50" height="2.50" rx="1.25"/><rect x="343.40" y="40.75" width="2.50" height="7.25" rx="1.25"/><rect x="336.90" y="47.25" width="7.50" height="2.50" rx="1.25"/><rect x="335.40" y="49.00" width="2.50" height="7.25" rx="1.25"/><rect x="336.90" y="55.50" width="7.50" height="2.50" rx="1.25"/><rect x="349.50" y="40.75" width="2.50" height="7.25" rx="1.25"/><rect x="351.00" y="47.25" width="7.50" height="2.50" rx="1.25"/><rect x="357.50" y="40.75" width="2.50" height="7.25" rx="1.25"/><rect x="357.50" y="49.00" width="2.50" height="7.25" rx="1.25"/><circle cx="364.6" cy="41.6" r="1.9" fill="none" stroke="#e8812f" stroke-width="1.3"/></g></g>
+
+<g class="a2-air" transform="translate(0 114)">
+  <path class="a2-veil" d="M48 0 L198 0 L197.8 122.0 L32.3 122.0 Z" fill="url(#a2-veilg)"/>
+  <path class="a2-veil" d="M202 0 L352 0 L367.7 122.0 L202.2 122.0 Z" fill="url(#a2-veilg)"/>
+  <path class="a2-soft" d="M56.0 0 L41.1 122.0" fill="none" stroke="#fb923c" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-0.00s"/><path class="a2-soft alt" d="M88.0 0 L76.4 122.0" fill="none" stroke="#fb923c" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-0.61s"/><path class="a2-soft" d="M120.0 0 L111.7 122.0" fill="none" stroke="#fb923c" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-1.22s"/><path class="a2-soft alt" d="M152.0 0 L147.0 122.0" fill="none" stroke="#fb923c" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-0.43s"/><path class="a2-soft" d="M184.0 0 L182.3 122.0" fill="none" stroke="#fb923c" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-1.04s"/><path class="a2-soft alt" d="M216.0 0 L217.7 122.0" fill="none" stroke="#fb923c" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-0.25s"/><path class="a2-soft" d="M248.0 0 L253.0 122.0" fill="none" stroke="#fb923c" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-0.86s"/><path class="a2-soft alt" d="M280.0 0 L288.3 122.0" fill="none" stroke="#fb923c" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-0.07s"/><path class="a2-soft" d="M312.0 0 L323.6 122.0" fill="none" stroke="#fb923c" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-0.68s"/><path class="a2-soft alt" d="M344.0 0 L358.9 122.0" fill="none" stroke="#fb923c" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-1.29s"/>
+</g>
+</svg><div>Heat · 75° · High</div></div><div style='background:#12141a;border-radius:16px;padding:12px;text-align:center'><svg class="a3-root" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250"
+ role="img" aria-label="Ar-condicionado ligado">
+<style>
+.a3-root{--louver:50deg;--air:#cbd5e1;--period:3.2s}
+.a3-flap{transform-box:fill-box;transform-origin:50% 50%;
+  transform:scaleY(max(.1,cos(var(--louver))));
+  transition:transform .9s cubic-bezier(.4,0,.2,1)}
+.a3-flap.a3-swing{animation:a3-sw 4.2s ease-in-out infinite alternate}
+@keyframes a3-sw{from{transform:scaleY(.94)}to{transform:scaleY(.14)}}
+.a3-soft{fill:none;stroke:#cbd5e1;stroke-width:15;stroke-linecap:butt;
+  stroke-dasharray:80 50;opacity:.30;animation:a3-flow calc(var(--period)*1.5) linear infinite}
+.a3-veil{animation:a3-breath calc(var(--period)*2) ease-in-out infinite alternate}
+.a3-air{animation:a3-swayx 4.2s ease-in-out infinite alternate}
+.a3-tick{animation:a3-pulse 2.6s ease-in-out infinite}
+.a3-soft.alt{opacity:.46}
+@keyframes a3-flow{to{stroke-dashoffset:-130}}
+@keyframes a3-breath{from{opacity:.5}to{opacity:1}}
+@keyframes a3-swayx{from{transform:translate(-4px,114px)}to{transform:translate(4px,114px)}}
+@keyframes a3-pulse{50%{opacity:.4}}
+@media (prefers-reduced-motion: reduce){.a3-soft,.a3-veil,.a3-flap,.a3-tick,.a3-air{animation:none!important}}
+</style>
+<defs>
+  <linearGradient id="a3-body" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eef0f4"/>
+  </linearGradient>
+  <linearGradient id="a3-lip" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#dfe2e8"/><stop offset="1" stop-color="#c9cdd6"/>
+  </linearGradient>
+  <linearGradient id="a3-line" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#cfd4dc" stop-opacity="0"/><stop offset=".5" stop-color="#cfd4dc"/><stop offset="1" stop-color="#cfd4dc" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="a3-slot" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#0d0f14"/><stop offset="1" stop-color="#1c1f28"/>
+  </linearGradient>
+  <linearGradient id="a3-flapg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e1e4ea"/>
+  </linearGradient>
+  <linearGradient id="a3-veilg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#cbd5e1" stop-opacity=".32"/><stop offset="1" stop-color="#cbd5e1" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="a3-shadow" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#000000" stop-opacity="0.30"/>
+    <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+  </linearGradient>
+</defs>
+
+<!-- soft drop shadow -->
+<rect x="22" y="24" width="356" height="96" rx="20" fill="url(#a3-shadow)"/>
+
+<!-- corpo -->
+<g>
+  <path d="M30 94 H370 V104 Q370 116 358 116 H42 Q30 116 30 104 Z" fill="url(#a3-lip)"/>
+  <rect x="20" y="14" width="360" height="86" rx="18" fill="url(#a3-body)"/>
+</g>
+<rect x="20.5" y="14.5" width="359" height="85" rx="17.5" fill="none" stroke="#fff" stroke-opacity=".85"/>
+<rect x="56" y="76.5" width="288" height="1.2" fill="url(#a3-line)"/>
+<rect x="196.3" y="83.5" width="1.5" height="4.5" rx=".75" fill="#cbd5e1" class="a3-tick" transform="rotate(-22 197.05 88.0)"/><rect x="199.25" y="82" width="1.5" height="6" rx=".75" fill="#cbd5e1" class="a3-tick" transform="rotate(0 200.0 88)"/><rect x="202.2" y="83.5" width="1.5" height="4.5" rx=".75" fill="#cbd5e1" class="a3-tick" transform="rotate(22 202.95 88.0)"/>
+
+<!-- saída de ar -->
+<rect x="46" y="102" width="308" height="10" rx="5" fill="url(#a3-slot)"/>
+<g class="a3-flap a3-swing" >
+  <rect x="48" y="103.5" width="304" height="7" rx="3.5" fill="url(#a3-flapg)"/>
+  <rect x="98.7" y="103.5" width=".9" height="7" fill="#bcc2cc"/><rect x="149.3" y="103.5" width=".9" height="7" fill="#bcc2cc"/><rect x="250.7" y="103.5" width=".9" height="7" fill="#bcc2cc"/><rect x="301.3" y="103.5" width=".9" height="7" fill="#bcc2cc"/><rect x="199.1" y="103.5" width="1.8" height="7" fill="#aab1bd"/>
+</g>
+
+
+<g class="a3-air" transform="translate(0 114)">
+  <path class="a3-veil" d="M48 0 L198 0 L197.6 102.0 L18.8 102.0 Z" fill="url(#a3-veilg)"/>
+  <path class="a3-veil" d="M202 0 L352 0 L381.2 102.0 L202.4 102.0 Z" fill="url(#a3-veilg)"/>
+  <path class="a3-soft" d="M56.0 0 L28.3 102.0" fill="none" stroke="#cbd5e1" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-0.00s"/><path class="a3-soft alt" d="M88.0 0 L66.5 102.0" fill="none" stroke="#cbd5e1" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-0.61s"/><path class="a3-soft" d="M120.0 0 L104.6 102.0" fill="none" stroke="#cbd5e1" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-1.22s"/><path class="a3-soft alt" d="M152.0 0 L142.8 102.0" fill="none" stroke="#cbd5e1" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-1.83s"/><path class="a3-soft" d="M184.0 0 L180.9 102.0" fill="none" stroke="#cbd5e1" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-2.44s"/><path class="a3-soft alt" d="M216.0 0 L219.1 102.0" fill="none" stroke="#cbd5e1" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-3.05s"/><path class="a3-soft" d="M248.0 0 L257.2 102.0" fill="none" stroke="#cbd5e1" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-0.46s"/><path class="a3-soft alt" d="M280.0 0 L295.4 102.0" fill="none" stroke="#cbd5e1" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-1.07s"/><path class="a3-soft" d="M312.0 0 L333.5 102.0" fill="none" stroke="#cbd5e1" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-1.68s"/><path class="a3-soft alt" d="M344.0 0 L371.7 102.0" fill="none" stroke="#cbd5e1" stroke-width="15" stroke-linecap="butt" stroke-dasharray="80 50" style="animation-delay:-2.29s"/>
+</g>
+</svg><div>Fan · swing · Low</div></div><div style='background:#12141a;border-radius:16px;padding:12px;text-align:center'><svg class="a4-root" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250"
+ role="img" aria-label="Ar-condicionado desligado">
+<style>
+.a4-root{--louver:0deg;--air:#7dd3fc;--period:2.2s}
+.a4-flap{transform-box:fill-box;transform-origin:50% 50%;
+  transform:scaleY(max(.1,cos(var(--louver))));
+  transition:transform .9s cubic-bezier(.4,0,.2,1)}
+.a4-flap.a4-swing{animation:a4-sw 4.2s ease-in-out infinite alternate}
+@keyframes a4-sw{from{transform:scaleY(.94)}to{transform:scaleY(.14)}}
+.a4-soft{fill:none;stroke:#7dd3fc;stroke-width:15;stroke-linecap:butt;
+  stroke-dasharray:80 50;opacity:.30;animation:a4-flow calc(var(--period)*1.5) linear infinite}
+.a4-veil{animation:a4-breath calc(var(--period)*2) ease-in-out infinite alternate}
+.a4-air{}
+.a4-tick{animation:a4-pulse 2.6s ease-in-out infinite}
+.a4-soft.alt{opacity:.46}
+@keyframes a4-flow{to{stroke-dashoffset:-130}}
+@keyframes a4-breath{from{opacity:.5}to{opacity:1}}
+@keyframes a4-swayx{from{transform:translate(-4px,114px)}to{transform:translate(4px,114px)}}
+@keyframes a4-pulse{50%{opacity:.4}}
+@media (prefers-reduced-motion: reduce){.a4-soft,.a4-veil,.a4-flap,.a4-tick,.a4-air{animation:none!important}}
+</style>
+<defs>
+  <linearGradient id="a4-body" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eef0f4"/>
+  </linearGradient>
+  <linearGradient id="a4-lip" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#dfe2e8"/><stop offset="1" stop-color="#c9cdd6"/>
+  </linearGradient>
+  <linearGradient id="a4-line" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#cfd4dc" stop-opacity="0"/><stop offset=".5" stop-color="#cfd4dc"/><stop offset="1" stop-color="#cfd4dc" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="a4-slot" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#0d0f14"/><stop offset="1" stop-color="#1c1f28"/>
+  </linearGradient>
+  <linearGradient id="a4-flapg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e1e4ea"/>
+  </linearGradient>
+  <linearGradient id="a4-veilg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#7dd3fc" stop-opacity=".32"/><stop offset="1" stop-color="#7dd3fc" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="a4-shadow" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#000000" stop-opacity="0.30"/>
+    <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+  </linearGradient>
+</defs>
+
+<!-- soft drop shadow -->
+<rect x="22" y="24" width="356" height="96" rx="20" fill="url(#a4-shadow)"/>
+
+<!-- corpo -->
+<g>
+  <path d="M30 94 H370 V104 Q370 116 358 116 H42 Q30 116 30 104 Z" fill="url(#a4-lip)"/>
+  <rect x="20" y="14" width="360" height="86" rx="18" fill="url(#a4-body)"/>
+</g>
+<rect x="20.5" y="14.5" width="359" height="85" rx="17.5" fill="none" stroke="#fff" stroke-opacity=".85"/>
+<rect x="56" y="76.5" width="288" height="1.2" fill="url(#a4-line)"/>
+<rect x="196.3" y="83.5" width="1.5" height="4.5" rx=".75" fill="#bfc5cf" transform="rotate(-22 197.05 88.0)"/><rect x="199.25" y="82" width="1.5" height="6" rx=".75" fill="#bfc5cf" transform="rotate(0 200.0 88)"/><rect x="202.2" y="83.5" width="1.5" height="4.5" rx=".75" fill="#bfc5cf" transform="rotate(22 202.95 88.0)"/>
+
+<!-- saída de ar -->
+<rect x="46" y="102" width="308" height="10" rx="5" fill="url(#a4-slot)"/>
+<g class="a4-flap" >
+  <rect x="48" y="103.5" width="304" height="7" rx="3.5" fill="url(#a4-flapg)"/>
+  <rect x="98.7" y="103.5" width=".9" height="7" fill="#bcc2cc"/><rect x="149.3" y="103.5" width=".9" height="7" fill="#bcc2cc"/><rect x="250.7" y="103.5" width=".9" height="7" fill="#bcc2cc"/><rect x="301.3" y="103.5" width=".9" height="7" fill="#bcc2cc"/><rect x="199.1" y="103.5" width="1.8" height="7" fill="#aab1bd"/>
+</g>
+
+
+</svg><div>Off</div></div>
