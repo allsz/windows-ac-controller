@@ -11,6 +11,7 @@ Os resultados voltam a thread da interface por sinais Qt (conexao enfileirada au
 """
 
 import asyncio
+import functools
 import threading
 from typing import Optional
 
@@ -28,6 +29,7 @@ class NotConfiguredError(Exception):
 class ThinQClient(QtCore.QObject):
     status_updated = QtCore.Signal(dict)
     status_failed = QtCore.Signal()
+    status_stale = QtCore.Signal()  # status descartado por ser mais antigo que um comando do usuario
     command_finished = QtCore.Signal(bool, str)
 
     def __init__(self, env_dir: Optional[str] = None, parent=None):
@@ -41,14 +43,18 @@ class ThinQClient(QtCore.QObject):
         self._api = None
         self._api_key = None
         self._closed = False
+        # Incrementa a cada comando enviado; um status pedido antes de um comando mais novo e descartado
+        self._command_generation = 0
 
     # ------------------------------------------------------------------
     # API publica (chamada da thread da interface)
     # ------------------------------------------------------------------
     def get_status(self) -> None:
-        self._submit(self._fetch_status(), self._on_status_done)
+        callback = functools.partial(self._on_status_done, self._command_generation)
+        self._submit(self._fetch_status(), callback)
 
     def send_command(self, payload: dict) -> None:
+        self._command_generation += 1
         self._submit(self._post_command(payload), self._on_command_done)
 
     def close(self) -> None:
@@ -147,7 +153,9 @@ class ThinQClient(QtCore.QObject):
     # ------------------------------------------------------------------
     # Retorno para a thread da interface (emite sinais; Qt enfileira)
     # ------------------------------------------------------------------
-    def _on_status_done(self, fut) -> None:
+    def _on_status_done(self, generation: int, fut) -> None:
+        if self._closed or fut.cancelled():
+            return
         try:
             data = fut.result()
         except NotConfiguredError:
@@ -157,16 +165,23 @@ class ThinQClient(QtCore.QObject):
             print("[ThinQ Status Error]:", repr(e), flush=True)
             self.status_failed.emit()
             return
-        if data and isinstance(data, dict):
+        if generation != self._command_generation:
+            # O usuario enviou um comando depois deste pedido: aplicar o status faria a UI "voltar atras"
+            print("[ThinQ] Status descartado (ha comando mais recente).", flush=True)
+            self.status_stale.emit()
+        elif data and isinstance(data, dict):
             print("[ThinQ] Status atualizado com sucesso do aparelho.", flush=True)
             self.status_updated.emit(data)
         else:
             self.status_failed.emit()
 
     def _on_command_done(self, fut) -> None:
+        if self._closed or fut.cancelled():
+            return
         try:
             res = fut.result()
-        except NotConfiguredError:
+        except NotConfiguredError as e:
+            self.command_finished.emit(False, str(e))
             return
         except BaseException as e:
             print(f"[ThinQ Command Error]: {e!r}", flush=True)

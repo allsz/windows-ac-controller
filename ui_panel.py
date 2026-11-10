@@ -103,6 +103,8 @@ TRANSLATIONS = {
         "clear_data_title": "Reset Application Data",
         "clear_data_confirm": "Are you sure you want to permanently disconnect and delete all your LG ThinQ credentials and local settings from this computer?\n\nThis action cannot be undone.",
         "clear_data_success": "All credentials, vault files, and saved preferences have been permanently removed from this computer.",
+        "command_failed_title": "Command not sent",
+        "command_failed": "The AC did not respond. The panel was synced with the real device state.",
     },
     "pt": {
         "room": "Ambiente",
@@ -145,6 +147,8 @@ TRANSLATIONS = {
         "clear_data_title": "Redefinir Dados do Aplicativo",
         "clear_data_confirm": "Tem certeza que deseja desconectar e apagar permanentemente todas as suas credenciais LG ThinQ e configurações locais deste computador?\n\nEsta ação não poderá ser desfeita.",
         "clear_data_success": "Todas as credenciais, arquivos do cofre e preferências salvas foram excluídos permanentemente deste computador.",
+        "command_failed_title": "Comando não enviado",
+        "command_failed": "O ar-condicionado não respondeu. O painel foi sincronizado com o estado real do aparelho.",
     },
     "es": {
         "room": "Ambiente",
@@ -187,6 +191,8 @@ TRANSLATIONS = {
         "clear_data_title": "Restablecer Datos de la Aplicación",
         "clear_data_confirm": "¿Está seguro de que desea desconectar y eliminar permanentemente todas sus credenciales de LG ThinQ y configuraciones locales de esta computadora?\n\nEsta acción no se puede deshacer.",
         "clear_data_success": "Todas las credenciales, archivos de la bóveda y preferencias guardadas se han eliminado permanentemente de esta computadora.",
+        "command_failed_title": "Comando no enviado",
+        "command_failed": "El aire acondicionado no respondió. El panel se sincronizó con el estado real del equipo.",
     }
 }
 
@@ -1317,6 +1323,7 @@ class ACPanelWidget(QtWidgets.QFrame):
     eco_toggled = QtCore.Signal(bool)
     option_changed = QtCore.Signal(str, str)
     language_changed = QtCore.Signal(str)
+    command_failed = QtCore.Signal()
     temp_unit_changed = QtCore.Signal(str)
 
     def __init__(self, parent=None):
@@ -1351,6 +1358,9 @@ class ACPanelWidget(QtWidgets.QFrame):
         self._client = ThinQClient(get_base_dir(), self)
         self._client.status_updated.connect(self._apply_thinq_status)
         self._client.status_failed.connect(self._on_sync_failed)
+        self._client.status_stale.connect(self._on_status_stale)
+        self._client.command_finished.connect(self._on_command_finished)
+        self._resync_scheduled = False
 
         self._temp_debounce_timer = QtCore.QTimer(self)
         self._temp_debounce_timer.setSingleShot(True)
@@ -2148,6 +2158,23 @@ class ACPanelWidget(QtWidgets.QFrame):
     def _on_sync_failed(self):
         self.set_connection_status("disconnected")
 
+    def _on_status_stale(self):
+        # Um comando mais novo tornou este status obsoleto; a UI ja reflete a intencao do usuario
+        self.set_connection_status("connected")
+
+    def _on_command_finished(self, ok: bool, message: str):
+        """Comando falhou: avisa o usuario e ressincroniza a UI com o estado real do aparelho."""
+        if ok:
+            return
+        self.command_failed.emit()
+        if not self._resync_scheduled:
+            self._resync_scheduled = True
+            QtCore.QTimer.singleShot(500, self._resync_after_failure)
+
+    def _resync_after_failure(self):
+        self._resync_scheduled = False
+        self.refresh_status_from_thinq()
+
     def _send_thinq_command(self, payload: dict):
         """Dispara comando assincrono para o ar condicionado em segundo plano"""
         self._client.send_command(payload)
@@ -2616,6 +2643,7 @@ class TrayApplication:
         self.tray.setContextMenu(menu)
 
         self.window.panel.language_changed.connect(self._update_tray_texts)
+        self.window.panel.command_failed.connect(self._on_command_failed)
 
         self.tray.activated.connect(self.on_activated)
         self.tray.messageClicked.connect(self._on_tray_message_clicked)
@@ -2661,6 +2689,15 @@ class TrayApplication:
         """Ao clicar na notificação da bandeja, reabre a tela de credenciais."""
         if not self.has_configured_credentials():
             self._open_credentials_dialog()
+
+    def _on_command_failed(self):
+        panel = self.window.panel
+        self.tray.showMessage(
+            panel.tr_text("command_failed_title"),
+            panel.tr_text("command_failed"),
+            QtWidgets.QSystemTrayIcon.MessageIcon.Warning,
+            5000
+        )
 
     def _update_tray_texts(self, lang: str):
         self.m_open.setText(self.window.panel.tr_text("open_panel"))
