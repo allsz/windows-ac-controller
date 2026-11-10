@@ -1,9 +1,9 @@
 ; Instalador do WTC LG (Inno Setup 6)
-; Uso: ISCC.exe /DAppVersion=1.1.0 installer.iss   (scripts\build.ps1 faz isso)
+; Uso: ISCC.exe /DAppVersion=1.0.0 installer.iss   (scripts\build.ps1 faz isso)
 
 #define AppName "WTC LG"
 #ifndef AppVersion
-  #define AppVersion "1.1.0"
+  #define AppVersion "1.0.0"
 #endif
 #define AppExe "WTC LG.exe"
 

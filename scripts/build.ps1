@@ -13,12 +13,14 @@ Write-Host "==> Versao: $version"
 $pyinstaller = "venv\Scripts\pyinstaller.exe"
 if (-not (Test-Path $pyinstaller)) { throw "PyInstaller nao encontrado. Rode: venv\Scripts\python.exe -m pip install pyinstaller" }
 
-$iscc = @(
-    "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe",
-    "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
-    "$env:ProgramFiles\Inno Setup 6\ISCC.exe"
-) | Where-Object { Test-Path $_ } | Select-Object -First 1
-if (-not $iscc) { throw "Inno Setup 6 nao encontrado (https://jrsoftware.org/isdl.php)" }
+$iscc = foreach ($ver in 7, 6) {
+    "$env:LOCALAPPDATA\Programs\Inno Setup $ver\ISCC.exe"
+    "${env:ProgramFiles(x86)}\Inno Setup $ver\ISCC.exe"
+    "$env:ProgramFiles\Inno Setup $ver\ISCC.exe"
+}
+$iscc = $iscc | Where-Object { Test-Path $_ } | Select-Object -First 1
+if (-not $iscc) { throw "Inno Setup (6 ou 7) nao encontrado (https://jrsoftware.org/isdl.php)" }
+Write-Host "==> Inno Setup: $iscc"
 
 Write-Host "==> Limpando build anterior"
 Remove-Item -Recurse -Force build, dist, release -ErrorAction SilentlyContinue
