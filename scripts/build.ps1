@@ -42,6 +42,8 @@ Write-Host "==> SHA256"
 @(Get-ChildItem release -File) | ForEach-Object {
     $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
     "{0}  {1}" -f $hash, $_.Name
-} | Tee-Object -FilePath release\SHA256SUMS.txt
+} | Tee-Object -Variable sums
+# Out-File em ASCII: o redirecionamento padrao do PowerShell 5.1 grava UTF-16 (ilegivel fora do Windows e para o atualizador)
+$sums | Out-File release\SHA256SUMS.txt -Encoding ascii
 
 Write-Host "`nPronto. Arquivos em release\"

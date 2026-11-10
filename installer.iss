@@ -24,10 +24,11 @@ SolidCompression=yes
 CloseApplications=yes
 WizardStyle=modern
 
-; Assistente enxuto: sem boas-vindas, pasta, grupo do Menu Iniciar e tela "pronto para instalar".
-; Resta apenas a barra de progresso e a tela final (com a opcao de abrir o app).
+; Assistente enxuto: sem boas-vindas, grupo do Menu Iniciar e tela "pronto para instalar".
+; Resta a escolha da pasta de instalacao, a barra de progresso e a tela final (com a opcao de abrir o app).
+; Em atualizacoes o Inno reutiliza a pasta da instalacao anterior (UsePreviousAppDir, padrao).
 DisableWelcomePage=yes
-DisableDirPage=yes
+DisableDirPage=no
 DisableProgramGroupPage=yes
 DisableReadyPage=yes
 
@@ -43,6 +44,8 @@ Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExe}"
 
 [Run]
 Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
+; Instalacao silenciosa (usada pelo atualizador do app): reabre o app na bandeja, sem abrir o painel
+Filename: "{app}\{#AppExe}"; Parameters: "--silent"; Flags: nowait runasoriginaluser; Check: WizardSilent
 
 [UninstallRun]
 ; Fecha o app se estiver na bandeja, senao os arquivos ficam em uso e sobram na pasta

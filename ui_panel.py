@@ -5,6 +5,7 @@ import re
 from PySide6 import QtCore, QtGui, QtWidgets, QtSvg, QtNetwork
 
 from theme import PALETTES, THEME_MODES, get_palette, resolve_theme_name
+import updater
 
 __version__ = "1.0.0"
 __app_name__ = "WTC LG"
@@ -103,6 +104,15 @@ TRANSLATIONS = {
         "clear_data_title": "Reset Application Data",
         "clear_data_confirm": "Are you sure you want to permanently disconnect and delete all your LG ThinQ credentials and local settings from this computer?\n\nThis action cannot be undone.",
         "clear_data_success": "All credentials, vault files, and saved preferences have been permanently removed from this computer.",
+        "update_check": "Check for updates...",
+        "update_auto": "Check for updates automatically",
+        "update_title": "WTC LG Update",
+        "update_available": "Version {v} is available. Download and install now? The app will close and reopen.",
+        "update_available_portable": "Version {v} is available. This is the portable build, so it cannot update itself. Open the download page?",
+        "update_notify": "Version {v} is available. Click here to update.",
+        "update_none": "You are on the latest version ({v}).",
+        "update_error": "Could not update: {e}",
+        "update_downloading": "Downloading the update...",
         "command_failed_title": "Command not sent",
         "command_failed": "The AC did not respond. The panel was synced with the real device state.",
     },
@@ -147,6 +157,15 @@ TRANSLATIONS = {
         "clear_data_title": "Redefinir Dados do Aplicativo",
         "clear_data_confirm": "Tem certeza que deseja desconectar e apagar permanentemente todas as suas credenciais LG ThinQ e configurações locais deste computador?\n\nEsta ação não poderá ser desfeita.",
         "clear_data_success": "Todas as credenciais, arquivos do cofre e preferências salvas foram excluídos permanentemente deste computador.",
+        "update_check": "Verificar atualizações...",
+        "update_auto": "Buscar atualizações automaticamente",
+        "update_title": "Atualização do WTC LG",
+        "update_available": "A versão {v} está disponível. Baixar e instalar agora? O app será fechado e reaberto.",
+        "update_available_portable": "A versão {v} está disponível. Esta é a versão portátil e não se atualiza sozinha. Abrir a página de download?",
+        "update_notify": "A versão {v} está disponível. Clique aqui para atualizar.",
+        "update_none": "Você já está na versão mais recente ({v}).",
+        "update_error": "Não foi possível atualizar: {e}",
+        "update_downloading": "Baixando a atualização...",
         "command_failed_title": "Comando não enviado",
         "command_failed": "O ar-condicionado não respondeu. O painel foi sincronizado com o estado real do aparelho.",
     },
@@ -191,6 +210,15 @@ TRANSLATIONS = {
         "clear_data_title": "Restablecer Datos de la Aplicación",
         "clear_data_confirm": "¿Está seguro de que desea desconectar y eliminar permanentemente todas sus credenciales de LG ThinQ y configuraciones locales de esta computadora?\n\nEsta acción no se puede deshacer.",
         "clear_data_success": "Todas las credenciales, archivos de la bóveda y preferencias guardadas se han eliminado permanentemente de esta computadora.",
+        "update_check": "Buscar actualizaciones...",
+        "update_auto": "Buscar actualizaciones automáticamente",
+        "update_title": "Actualización de WTC LG",
+        "update_available": "La versión {v} está disponible. ¿Descargar e instalar ahora? La aplicación se cerrará y se reabrirá.",
+        "update_available_portable": "La versión {v} está disponible. Esta es la versión portátil y no se actualiza sola. ¿Abrir la página de descarga?",
+        "update_notify": "La versión {v} está disponible. Haz clic aquí para actualizar.",
+        "update_none": "Ya tienes la versión más reciente ({v}).",
+        "update_error": "No se pudo actualizar: {e}",
+        "update_downloading": "Descargando la actualización...",
         "command_failed_title": "Comando no enviado",
         "command_failed": "El aire acondicionado no respondió. El panel se sincronizó con el estado real del equipo.",
     }
@@ -204,6 +232,14 @@ from common import (
     is_windows_dark_mode, svg_to_pixmap,
 )
 from thinq_client import ThinQClient
+
+
+def auto_update_enabled() -> bool:
+    return QtCore.QSettings("WTC LG", "Preferences").value("auto_update", False, type=bool)
+
+
+def set_auto_update_enabled(enabled: bool) -> None:
+    QtCore.QSettings("WTC LG", "Preferences").setValue("auto_update", bool(enabled))
 
 
 def is_autostart_enabled(app_name: str = "WTC LG") -> bool:
@@ -1324,6 +1360,7 @@ class ACPanelWidget(QtWidgets.QFrame):
     option_changed = QtCore.Signal(str, str)
     language_changed = QtCore.Signal(str)
     command_failed = QtCore.Signal()
+    check_updates_requested = QtCore.Signal()
     temp_unit_changed = QtCore.Signal(str)
 
     def __init__(self, parent=None):
@@ -1711,6 +1748,17 @@ class ACPanelWidget(QtWidgets.QFrame):
         act_autostart.setCheckable(True)
         act_autostart.setChecked(is_autostart_enabled())
         act_autostart.triggered.connect(lambda: set_autostart_enabled(act_autostart.isChecked()))
+
+        menu.addSeparator()
+
+        # 5b. Atualizacoes (manual e busca automatica)
+        act_update = menu.addAction(self.tr_text("update_check"))
+        act_update.triggered.connect(self.check_updates_requested.emit)
+
+        act_auto_update = menu.addAction(self.tr_text("update_auto"))
+        act_auto_update.setCheckable(True)
+        act_auto_update.setChecked(auto_update_enabled())
+        act_auto_update.triggered.connect(lambda: set_auto_update_enabled(act_auto_update.isChecked()))
 
         menu.addSeparator()
 
@@ -2634,6 +2682,9 @@ class TrayApplication:
         self.action_creds = menu.addAction("Configurar Credenciais LG...")
         self.action_creds.triggered.connect(self._open_credentials_dialog)
 
+        self.action_update = menu.addAction(self.window.panel.tr_text("update_check"))
+        self.action_update.triggered.connect(lambda: self._check_updates(manual=True))
+
         self.action_clear_data = menu.addAction(self.window.panel.tr_text("clear_data"))
         self.action_clear_data.triggered.connect(self.window.panel._prompt_clear_data)
 
@@ -2644,6 +2695,8 @@ class TrayApplication:
 
         self.window.panel.language_changed.connect(self._update_tray_texts)
         self.window.panel.command_failed.connect(self._on_command_failed)
+        self.window.panel.check_updates_requested.connect(lambda: self._check_updates(manual=True))
+        self._init_updater()
 
         self.tray.activated.connect(self.on_activated)
         self.tray.messageClicked.connect(self._on_tray_message_clicked)
@@ -2686,9 +2739,94 @@ class TrayApplication:
         return bool(creds and creds.get("pat"))
 
     def _on_tray_message_clicked(self):
-        """Ao clicar na notificação da bandeja, reabre a tela de credenciais."""
-        if not self.has_configured_credentials():
+        """Ao clicar na notificação da bandeja: oferece a atualização pendente ou reabre as credenciais."""
+        if self._pending_update is not None:
+            info, self._pending_update = self._pending_update, None
+            self._prompt_update(info)
+        elif not self.has_configured_credentials():
             self._open_credentials_dialog()
+
+    # ------------------------------------------------------------------
+    # Atualizacoes
+    # ------------------------------------------------------------------
+    UPDATE_CHECK_INTERVAL_SECONDS = 24 * 3600
+
+    def _init_updater(self):
+        self._updater = updater.Updater(__version__, self)
+        self._updater.check_finished.connect(self._on_update_check)
+        self._updater.download_finished.connect(self._on_update_downloaded)
+        self._pending_update = None
+        self._update_manual = False
+        self._update_busy = False
+        if auto_update_enabled():
+            prefs = QtCore.QSettings("WTC LG", "Preferences")
+            last = prefs.value("last_update_check", 0.0, type=float)
+            import time
+            if time.time() - last >= self.UPDATE_CHECK_INTERVAL_SECONDS:
+                QtCore.QTimer.singleShot(15000, lambda: self._check_updates(manual=False))
+
+    def _check_updates(self, manual: bool):
+        if self._update_busy:
+            return
+        import time
+        self._update_busy = True
+        self._update_manual = manual
+        QtCore.QSettings("WTC LG", "Preferences").setValue("last_update_check", time.time())
+        self._updater.check()
+
+    def _update_message(self, kind: str, text: str):
+        panel = self.window.panel
+        box = QtWidgets.QMessageBox(
+            QtWidgets.QMessageBox.Icon.Warning if kind == "error" else QtWidgets.QMessageBox.Icon.Information,
+            panel.tr_text("update_title"), text)
+        box.setWindowIcon(self.tray.icon())
+        box.exec()
+
+    def _on_update_check(self, info, error: str):
+        self._update_busy = False
+        panel = self.window.panel
+        if error:
+            if self._update_manual:
+                self._update_message("error", panel.tr_text("update_error").format(e=error))
+        elif info is None:
+            if self._update_manual:
+                self._update_message("info", panel.tr_text("update_none").format(v=__version__))
+        elif self._update_manual:
+            self._prompt_update(info)
+        else:
+            # Busca automatica nunca interrompe com janela: avisa na bandeja e espera o clique
+            self._pending_update = info
+            self.tray.showMessage(panel.tr_text("update_title"),
+                                  panel.tr_text("update_notify").format(v=info["version"]),
+                                  QtWidgets.QSystemTrayIcon.MessageIcon.Information, 8000)
+
+    def _prompt_update(self, info: dict):
+        panel = self.window.panel
+        can_install = updater.is_installed_build() and info.get("setup_url") and info.get("sums_url")
+        key = "update_available" if can_install else "update_available_portable"
+        answer = QtWidgets.QMessageBox.question(
+            None, panel.tr_text("update_title"), panel.tr_text(key).format(v=info["version"]))
+        if answer != QtWidgets.QMessageBox.StandardButton.Yes:
+            return
+        if can_install:
+            self._update_busy = True
+            self.tray.showMessage(panel.tr_text("update_title"), panel.tr_text("update_downloading"),
+                                  QtWidgets.QSystemTrayIcon.MessageIcon.Information, 4000)
+            self._updater.download(info)
+        else:
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl(info.get("page") or updater.RELEASES_PAGE))
+
+    def _on_update_downloaded(self, path: str, error: str):
+        self._update_busy = False
+        if error:
+            self._update_message("error", self.window.panel.tr_text("update_error").format(e=error))
+            return
+        try:
+            updater.launch_installer(path)
+        except OSError as e:
+            self._update_message("error", self.window.panel.tr_text("update_error").format(e=e))
+            return
+        self.quit()
 
     def _on_command_failed(self):
         panel = self.window.panel
@@ -2702,6 +2840,7 @@ class TrayApplication:
     def _update_tray_texts(self, lang: str):
         self.m_open.setText(self.window.panel.tr_text("open_panel"))
         self.action_autostart.setText(self.window.panel.tr_text("autostart"))
+        self.action_update.setText(self.window.panel.tr_text("update_check"))
         if hasattr(self, "action_clear_data"):
             self.action_clear_data.setText(self.window.panel.tr_text("clear_data"))
         self.m_quit.setText(self.window.panel.tr_text("quit"))
