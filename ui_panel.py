@@ -2729,9 +2729,10 @@ class TrayApplication:
         theme_mode = getattr(self.window.panel, "theme_mode", "system")
         dlg = CredentialsDialog(theme_mode=theme_mode)
         if dlg.exec():
-            # Força atualização do painel após salvar novas credenciais
-            if hasattr(self.window.panel, "refresh_status_from_thinq"):
-                self.window.panel.refresh_status_from_thinq()
+            # O botão do diálogo diz "Concluir e Abrir Painel": abre o painel (show_popup também
+            # sincroniza o status). O atraso deixa o diálogo terminar de fechar antes de o painel
+            # pedir o foco, senão o auto-ocultar pode escondê-lo na hora.
+            QtCore.QTimer.singleShot(100, self.window.show_popup)
             return True
         return False
 
