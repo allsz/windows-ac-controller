@@ -13,15 +13,24 @@ env/
 # PyInstaller / Build outputs
 build/
 dist/
+release/
 *.manifest
 *.spec
+!WTC LG.spec
+!WTC LG.spec
 
-# IDE and OS files
+# IDE, AI agents and OS files
 .vscode/
 .idea/
+.agent/
+.gemini/
+.impeccable/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 
 # Scratch and temporary testing files
 scratch/
+
+# Assets antigos guardados localmente
+assets_backup_unused/

@@ -2,7 +2,12 @@ import sys
 import os
 import math
 import re
-from PySide6 import QtCore, QtGui, QtWidgets, QtSvg
+from PySide6 import QtCore, QtGui, QtWidgets, QtSvg, QtNetwork
+
+from theme import PALETTES, THEME_MODES, get_palette, resolve_theme_name
+
+__version__ = "1.0.0"
+__app_name__ = "WTC LG"
 
 # =====================================================================
 # Design System & Dynamic Background Themes
@@ -13,131 +18,15 @@ ACCENT_ORANGE = "#FB923C"
 THUMB_COLOR = "#D4C5B9"
 POWER_CREAM = "#D4D0C7"
 
-THEME_PALETTES = {
-    "dark": {
-        "bg_color": "#0D0E12",
-        "card_bg": "#191B22",
-        "card_hover": "#22252F",
-        "card_active": "#2C303E",
-        "border_color": "rgba(255, 255, 255, 0.08)",
-        "border_hover": "rgba(255, 255, 255, 0.16)",
-        "border_active": "rgba(255, 255, 255, 0.28)",
-        "panel_border": "rgba(255, 255, 255, 0.12)",
-        "text_primary": "#FFFFFF",
-        "text_secondary": "#94A3B8",
-        "text_muted": "#64748B",
-        "icon_color": "#FFFFFF",
-        "power_color": "#D4D0C7",
-        "power_off_color": "#64748B",
-        "power_bg": "rgba(255, 255, 255, 0.08)",
-        "power_hover": "rgba(255, 255, 255, 0.14)",
-        "power_pressed": "rgba(255, 255, 255, 0.04)",
-        "stepper_color": "#FFFFFF",
-        "slider_groove": "#181A22",
-        "slider_groove_border": "rgba(255, 255, 255, 0.06)",
-        "drawer_bg": "#13151C",
-        "drawer_border": "rgba(255, 255, 255, 0.08)",
-        "opt_bg": "#181A22",
-        "opt_bg_active": "#272B38",
-        "opt_bg_hover": "#2F3444",
-        "opt_color": "#E2E8F0",
-        "opt_color_active": "#38BDF8",
-        "opt_border": "rgba(255, 255, 255, 0.08)",
-        "opt_border_active": "rgba(56, 189, 248, 0.5)",
-        "menu_bg": "#181920",
-        "menu_color": "#FFFFFF",
-        "menu_border": "rgba(255, 255, 255, 0.12)",
-        "menu_item_hover_bg": "#272A36",
-        "menu_item_hover_color": "#38BDF8",
-        "menu_separator": "rgba(255, 255, 255, 0.08)",
-        "settings_btn_hover": "#22252F",
-    },
-    "black": {
-        "bg_color": "#000000",
-        "card_bg": "#0D0D11",
-        "card_hover": "#17171E",
-        "card_active": "#21212B",
-        "border_color": "rgba(255, 255, 255, 0.10)",
-        "border_hover": "rgba(255, 255, 255, 0.20)",
-        "border_active": "rgba(255, 255, 255, 0.32)",
-        "panel_border": "rgba(255, 255, 255, 0.14)",
-        "text_primary": "#FFFFFF",
-        "text_secondary": "#9E9EAF",
-        "text_muted": "#6E6E82",
-        "icon_color": "#FFFFFF",
-        "power_color": "#D4D0C7",
-        "power_off_color": "#6E6E82",
-        "power_bg": "rgba(255, 255, 255, 0.10)",
-        "power_hover": "rgba(255, 255, 255, 0.16)",
-        "power_pressed": "rgba(255, 255, 255, 0.06)",
-        "stepper_color": "#FFFFFF",
-        "slider_groove": "#0C0D12",
-        "slider_groove_border": "rgba(255, 255, 255, 0.08)",
-        "drawer_bg": "#0A0B0E",
-        "drawer_border": "rgba(255, 255, 255, 0.10)",
-        "opt_bg": "#111218",
-        "opt_bg_active": "#222533",
-        "opt_bg_hover": "#2A2D3D",
-        "opt_color": "#E2E8F0",
-        "opt_color_active": "#38BDF8",
-        "opt_border": "rgba(255, 255, 255, 0.10)",
-        "opt_border_active": "rgba(56, 189, 248, 0.55)",
-        "menu_bg": "#101014",
-        "menu_color": "#FFFFFF",
-        "menu_border": "rgba(255, 255, 255, 0.14)",
-        "menu_item_hover_bg": "#222533",
-        "menu_item_hover_color": "#38BDF8",
-        "menu_separator": "rgba(255, 255, 255, 0.10)",
-        "settings_btn_hover": "#17171E",
-    },
-    "light": {
-        "bg_color": "#F8F9FA",
-        "card_bg": "#FFFFFF",
-        "card_hover": "#F1F3F5",
-        "card_active": "#E9ECEF",
-        "border_color": "rgba(0, 0, 0, 0.08)",
-        "border_hover": "rgba(0, 0, 0, 0.16)",
-        "border_active": "rgba(0, 0, 0, 0.28)",
-        "panel_border": "rgba(0, 0, 0, 0.12)",
-        "text_primary": "#0F172A",
-        "text_secondary": "#475569",
-        "text_muted": "#64748B",
-        "icon_color": "#0F172A",
-        "power_color": "#D97706",
-        "power_off_color": "#94A3B8",
-        "power_bg": "rgba(0, 0, 0, 0.06)",
-        "power_hover": "rgba(0, 0, 0, 0.10)",
-        "power_pressed": "rgba(0, 0, 0, 0.04)",
-        "stepper_color": "#0F172A",
-        "slider_groove": "#E2E8F0",
-        "slider_groove_border": "rgba(0, 0, 0, 0.06)",
-        "drawer_bg": "#F1F5F9",
-        "drawer_border": "rgba(0, 0, 0, 0.08)",
-        "opt_bg": "#FFFFFF",
-        "opt_bg_active": "#E0F2FE",
-        "opt_bg_hover": "#F8FAFC",
-        "opt_color": "#1E293B",
-        "opt_color_active": "#0284C7",
-        "opt_border": "rgba(0, 0, 0, 0.08)",
-        "opt_border_active": "rgba(2, 132, 199, 0.6)",
-        "menu_bg": "#FFFFFF",
-        "menu_color": "#0F172A",
-        "menu_border": "rgba(0, 0, 0, 0.12)",
-        "menu_item_hover_bg": "#F1F5F9",
-        "menu_item_hover_color": "#0284C7",
-        "menu_separator": "rgba(0, 0, 0, 0.08)",
-        "settings_btn_hover": "#E2E8F0",
-    },
-}
 
 # Aliases de compatibilidade para código que utilize as constantes diretamente
-BG_COLOR = THEME_PALETTES["dark"]["bg_color"]
-CARD_BG = THEME_PALETTES["dark"]["card_bg"]
-CARD_HOVER = THEME_PALETTES["dark"]["card_hover"]
-CARD_ACTIVE = THEME_PALETTES["dark"]["card_active"]
-BORDER_COLOR = THEME_PALETTES["dark"]["border_color"]
-TEXT_PRIMARY = THEME_PALETTES["dark"]["text_primary"]
-TEXT_SECONDARY = THEME_PALETTES["dark"]["text_secondary"]
+BG_COLOR = PALETTES["dark"]["bg_color"]
+CARD_BG = PALETTES["dark"]["card_bg"]
+CARD_HOVER = PALETTES["dark"]["card_hover"]
+CARD_ACTIVE = PALETTES["dark"]["card_active"]
+BORDER_COLOR = PALETTES["dark"]["border_color"]
+TEXT_PRIMARY = PALETTES["dark"]["text_primary"]
+TEXT_SECONDARY = PALETTES["dark"]["text_secondary"]
 
 # SVGs de sistema mantidos
 SVG_LEAF_FILL = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
@@ -210,6 +99,12 @@ TRANSLATIONS = {
         "ac_color": "AC Unit Style",
         "ac_color_white": "Classic White",
         "ac_color_black": "Artcool Black",
+        "clear_data": "Clear Credentials & Data...",
+        "clear_data_title": "Reset Application Data",
+        "clear_data_confirm": "Are you sure you want to permanently disconnect and delete all your LG ThinQ credentials and local settings from this computer?\n\nThis action cannot be undone.",
+        "clear_data_success": "All credentials, vault files, and saved preferences have been permanently removed from this computer.",
+        "command_failed_title": "Command not sent",
+        "command_failed": "The AC did not respond. The panel was synced with the real device state.",
     },
     "pt": {
         "room": "Ambiente",
@@ -248,6 +143,12 @@ TRANSLATIONS = {
         "ac_color": "Cor do Ar-Condicionado",
         "ac_color_white": "Branco Clássico",
         "ac_color_black": "Preto Artcool",
+        "clear_data": "Excluir Credenciais e Dados...",
+        "clear_data_title": "Redefinir Dados do Aplicativo",
+        "clear_data_confirm": "Tem certeza que deseja desconectar e apagar permanentemente todas as suas credenciais LG ThinQ e configurações locais deste computador?\n\nEsta ação não poderá ser desfeita.",
+        "clear_data_success": "Todas as credenciais, arquivos do cofre e preferências salvas foram excluídos permanentemente deste computador.",
+        "command_failed_title": "Comando não enviado",
+        "command_failed": "O ar-condicionado não respondeu. O painel foi sincronizado com o estado real do aparelho.",
     },
     "es": {
         "room": "Ambiente",
@@ -286,47 +187,47 @@ TRANSLATIONS = {
         "ac_color": "Color del Aire Acondicionado",
         "ac_color_white": "Blanco Clásico",
         "ac_color_black": "Negro Artcool",
+        "clear_data": "Eliminar Credenciales y Datos...",
+        "clear_data_title": "Restablecer Datos de la Aplicación",
+        "clear_data_confirm": "¿Está seguro de que desea desconectar y eliminar permanentemente todas sus credenciales de LG ThinQ y configuraciones locales de esta computadora?\n\nEsta acción no se puede deshacer.",
+        "clear_data_success": "Todas las credenciales, archivos de la bóveda y preferencias guardadas se han eliminado permanentemente de esta computadora.",
+        "command_failed_title": "Comando no enviado",
+        "command_failed": "El aire acondicionado no respondió. El panel se sincronizó con el estado real del equipo.",
     }
 }
 
 
-def get_base_dir() -> str:
-    """Retorna o diretório base da aplicação (local do executável ou script), onde o .env deve residir."""
-    if getattr(sys, 'frozen', False):
-        return os.path.dirname(sys.executable)
-    return os.path.dirname(os.path.abspath(__file__))
+# Design vetorial do ar condicionado (modulo local, analisado pelo PyInstaller)
+from ac_unit import render_ac_svg
+from common import (
+    FONT_STACK, get_base_dir, get_resource_path, init_app_fonts,
+    is_windows_dark_mode, svg_to_pixmap,
+)
+from thinq_client import ThinQClient
 
 
-def get_resource_path(relative_path: str) -> str:
-    """Retorna o caminho absoluto para recursos/assets, suportando tanto Python puro quanto PyInstaller (_MEIPASS)."""
-    base = getattr(sys, '_MEIPASS', get_base_dir())
-    return os.path.join(base, relative_path)
-
-
-# Carrega o novo design vetorial do ar condicionado
-new_design_dir = get_resource_path(os.path.join("assets", "new_design"))
-if os.path.exists(new_design_dir) and new_design_dir not in sys.path:
-    sys.path.insert(0, new_design_dir)
-
-try:
-    from ac_unit import render_ac_svg
-except ImportError:
-    render_ac_svg = None
-
-
-def is_autostart_enabled(app_name: str = "LGAirConditioner") -> bool:
+def is_autostart_enabled(app_name: str = "WTC LG") -> bool:
     """Verifica se o aplicativo está configurado para inicializar com o Windows no Registro (HKCU)."""
     try:
         import winreg
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, winreg.KEY_READ)
-        val, _ = winreg.QueryValueEx(key, app_name)
-        winreg.CloseKey(key)
-        return bool(val)
+        try:
+            val, _ = winreg.QueryValueEx(key, app_name)
+            winreg.CloseKey(key)
+            return bool(val)
+        except FileNotFoundError:
+            try:
+                val, _ = winreg.QueryValueEx(key, "LGAirConditioner")
+                winreg.CloseKey(key)
+                return bool(val)
+            except FileNotFoundError:
+                winreg.CloseKey(key)
+                return False
     except Exception:
         return False
 
 
-def set_autostart_enabled(enabled: bool, app_name: str = "LGAirConditioner") -> bool:
+def set_autostart_enabled(enabled: bool, app_name: str = "WTC LG") -> bool:
     """Adiciona ou remove a inicialização com o Windows no Registro (HKCU, sem exigir admin)."""
     try:
         import winreg
@@ -338,10 +239,18 @@ def set_autostart_enabled(enabled: bool, app_name: str = "LGAirConditioner") -> 
                 script_path = os.path.abspath(__file__)
                 cmd = f'"{sys.executable}" "{script_path}" --silent'
             winreg.SetValueEx(key, app_name, 0, winreg.REG_SZ, cmd)
+            try:
+                winreg.DeleteValue(key, "LGAirConditioner")
+            except Exception:
+                pass
         else:
             try:
                 winreg.DeleteValue(key, app_name)
-            except FileNotFoundError:
+            except Exception:
+                pass
+            try:
+                winreg.DeleteValue(key, "LGAirConditioner")
+            except Exception:
                 pass
         winreg.CloseKey(key)
         return True
@@ -440,20 +349,6 @@ def create_stepper_icon(symbol_type: str, size: int = 38, color: str = "#FFFFFF"
 
     p.end()
     return QtGui.QIcon(pix)
-
-
-def svg_to_pixmap(svg_text: str, width: int = 24, height: int = 24, color: str = "#FFFFFF") -> QtGui.QPixmap:
-    """Renderiza SVG embutido com currentColor"""
-    svg_colored = svg_text.replace("currentColor", color)
-    renderer = QtSvg.QSvgRenderer(QtCore.QByteArray(svg_colored.encode('utf-8')))
-    pix = QtGui.QPixmap(width, height)
-    pix.fill(QtCore.Qt.GlobalColor.transparent)
-    painter = QtGui.QPainter(pix)
-    painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
-    painter.setRenderHint(QtGui.QPainter.RenderHint.SmoothPixmapTransform)
-    renderer.render(painter)
-    painter.end()
-    return pix
 
 
 def create_dot_pixmap(diameter: int = 6, color_hex: str = ACCENT_GREEN) -> QtGui.QPixmap:
@@ -606,13 +501,18 @@ class AnimatedAirCurtainHero(QtWidgets.QWidget):
 
         if render_ac_svg is not None:
             is_swing = (self.airflow_state.lower() == "swing")
+            show_display_temp = (
+                self.is_powered_on
+                and self.current_mode.lower() not in ("fan", "ventilação", "ventilacao")
+                and self.target_temp is not None
+            )
             svg_data = render_ac_svg(
                 on=self.is_powered_on,
                 mode=self.current_mode,
                 fan=self.fan_speed,
                 louver=self._louver_angle,
                 swing=is_swing,
-                temp=self.target_temp if (self.is_powered_on and self.target_temp is not None) else None,
+                temp=self.target_temp if show_display_temp else None,
                 phase=self._phase if (self.is_powered_on or self._flow_progress > 0.01) else None,
                 uid="ac_hero",
                 ac_color=self.ac_color,
@@ -1304,7 +1204,7 @@ class OptionsDrawer(QtWidgets.QFrame):
         super().__init__(parent)
         self.current_category = None
         self.setObjectName("OptionsDrawer")
-        self.palette = THEME_PALETTES["dark"]
+        self.palette = PALETTES["dark"]
         self._apply_style()
 
         self.layout = QtWidgets.QHBoxLayout(self)
@@ -1378,7 +1278,7 @@ class OptionsDrawer(QtWidgets.QFrame):
                     padding: 8px 14px;
                     font-size: 12px;
                     font-weight: 600;
-                    font-family: 'Segoe UI', sans-serif;
+                    font-family: {FONT_STACK};
                 }}
                 QPushButton:hover {{
                     background-color: {btn_hover};
@@ -1415,114 +1315,6 @@ class OptionsDrawer(QtWidgets.QFrame):
         self.collapse()
 
 
-class ThinQWorker(QtCore.QThread):
-    status_updated = QtCore.Signal(dict)
-    sync_failed = QtCore.Signal()
-
-    def run(self):
-        try:
-            from dotenv import load_dotenv
-            env_file = os.path.join(get_base_dir(), ".env")
-            if os.path.exists(env_file):
-                load_dotenv(env_file)
-            else:
-                load_dotenv()
-
-            pat = os.getenv("THINQ_PAT")
-            country = os.getenv("THINQ_COUNTRY", "BR")
-            client_id = os.getenv("THINQ_CLIENT_ID", "windows_ac_tray_app")
-            device_id = os.getenv("THINQ_DEVICE_ID", "947e6dea7dd7be07c5e1b7821664f80c1db9845fbf75d6d4f33c60d206d7ab3a")
-            if not pat:
-                self.sync_failed.emit()
-                return
-
-            import asyncio
-            from aiohttp import ClientSession
-            from thinqconnect import ThinQApi
-
-            async def _get():
-                async with ClientSession() as session:
-                    api = ThinQApi(session=session, access_token=pat, country_code=country, client_id=client_id)
-                    res = await api.async_get_device_status(device_id)
-                    return res.body if hasattr(res, "body") else res
-
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            data = loop.run_until_complete(_get())
-            loop.close()
-            if data and isinstance(data, dict):
-                print(f"[ThinQ] Status atualizado com sucesso do aparelho.", flush=True)
-                self.status_updated.emit(data)
-            else:
-                self.sync_failed.emit()
-        except Exception as e:
-            print("[ThinQ Status Error]:", e, flush=True)
-            self.sync_failed.emit()
-
-
-class ThinQCommandWorker(QtCore.QThread):
-    command_finished = QtCore.Signal(bool, str)
-
-    def __init__(self, payload: dict, parent=None):
-        super().__init__(parent)
-        self.payload = payload
-
-    def run(self):
-        try:
-            from dotenv import load_dotenv
-            env_file = os.path.join(get_base_dir(), ".env")
-            if os.path.exists(env_file):
-                load_dotenv(env_file)
-            else:
-                load_dotenv()
-
-            pat = os.getenv("THINQ_PAT")
-            country = os.getenv("THINQ_COUNTRY", "BR")
-            client_id = os.getenv("THINQ_CLIENT_ID", "windows_ac_tray_app")
-            device_id = os.getenv("THINQ_DEVICE_ID", "947e6dea7dd7be07c5e1b7821664f80c1db9845fbf75d6d4f33c60d206d7ab3a")
-            if not pat:
-                return
-
-            import asyncio
-            from aiohttp import ClientSession
-            from thinqconnect import ThinQApi
-
-            async def _send():
-                async with ClientSession() as session:
-                    api = ThinQApi(session=session, access_token=pat, country_code=country, client_id=client_id)
-                    print(f"[ThinQ] >> Enviando comando: {self.payload}", flush=True)
-                    res = await api.async_post_device_control(device_id, self.payload)
-                    print(f"[ThinQ] << Comando executado com sucesso: {res}", flush=True)
-                    return res
-
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            res = loop.run_until_complete(_send())
-            loop.close()
-            self.command_finished.emit(True, str(res))
-        except Exception as e:
-            print(f"[ThinQ Command Error]: {e} (Payload: {self.payload})", flush=True)
-            self.command_finished.emit(False, str(e))
-
-
-
-def is_windows_dark_mode() -> bool:
-    """Verifica no registro do Windows se o tema de aplicativos e escuro (0) ou claro (1)."""
-    try:
-        import winreg
-        key = winreg.OpenKey(
-            winreg.HKEY_CURRENT_USER,
-            r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
-            0,
-            winreg.KEY_READ
-        )
-        val, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
-        winreg.CloseKey(key)
-        return bool(val == 0)
-    except Exception:
-        return True
-
-
 class ACPanelWidget(QtWidgets.QFrame):
     """Painel Principal Proporcional com Estetica macOS / Windows 11 Flyout"""
 
@@ -1531,13 +1323,14 @@ class ACPanelWidget(QtWidgets.QFrame):
     eco_toggled = QtCore.Signal(bool)
     option_changed = QtCore.Signal(str, str)
     language_changed = QtCore.Signal(str)
+    command_failed = QtCore.Signal()
     temp_unit_changed = QtCore.Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("ACPanel")
 
-        prefs = QtCore.QSettings("LGAirConditioner", "Preferences")
+        prefs = QtCore.QSettings("WTC LG", "Preferences")
         self.language = str(prefs.value("language", "en"))
         if self.language not in TRANSLATIONS:
             self.language = "en"
@@ -1545,7 +1338,7 @@ class ACPanelWidget(QtWidgets.QFrame):
         if self.temp_unit not in ["C", "F"]:
             self.temp_unit = "C"
         self.theme_mode = str(prefs.value("theme", "system"))
-        if self.theme_mode not in ["system", "light", "dark", "black"]:
+        if self.theme_mode not in THEME_MODES:
             self.theme_mode = "system"
         self.ac_color = str(prefs.value("ac_color", "white"))
         if self.ac_color not in ["white", "black"]:
@@ -1562,7 +1355,12 @@ class ACPanelWidget(QtWidgets.QFrame):
         self.fan_speed = "Auto"
         self.sleep_state = "Off"
         self.airflow_state = "Vertical"
-        self._active_workers = []
+        self._client = ThinQClient(get_base_dir(), self)
+        self._client.status_updated.connect(self._apply_thinq_status)
+        self._client.status_failed.connect(self._on_sync_failed)
+        self._client.status_stale.connect(self._on_status_stale)
+        self._client.command_finished.connect(self._on_command_finished)
+        self._resync_scheduled = False
 
         self._temp_debounce_timer = QtCore.QTimer(self)
         self._temp_debounce_timer.setSingleShot(True)
@@ -1575,15 +1373,13 @@ class ACPanelWidget(QtWidgets.QFrame):
 
     def _resolve_theme(self) -> str:
         """Resolve o modo de tema atual ('system', 'light', 'dark', 'black') para um tema concreto ('light', 'dark', 'black')."""
-        if self.theme_mode == "system":
-            return "dark" if is_windows_dark_mode() else "light"
-        return self.theme_mode
+        return resolve_theme_name(self.theme_mode)
 
     def set_theme_mode(self, mode: str):
-        if mode not in ["system", "light", "dark", "black"] or (self.theme_mode == mode and hasattr(self, '_current_resolved_theme')):
+        if mode not in THEME_MODES or (self.theme_mode == mode and hasattr(self, '_current_resolved_theme')):
             return
         self.theme_mode = mode
-        prefs = QtCore.QSettings("LGAirConditioner", "Preferences")
+        prefs = QtCore.QSettings("WTC LG", "Preferences")
         prefs.setValue("theme", mode)
         self.apply_theme()
 
@@ -1591,7 +1387,7 @@ class ACPanelWidget(QtWidgets.QFrame):
         if color not in ["white", "black"] or self.ac_color == color:
             return
         self.ac_color = color
-        prefs = QtCore.QSettings("LGAirConditioner", "Preferences")
+        prefs = QtCore.QSettings("WTC LG", "Preferences")
         prefs.setValue("ac_color", color)
         if hasattr(self, 'ac_hero'):
             self.ac_hero.set_ac_color(color)
@@ -1599,7 +1395,7 @@ class ACPanelWidget(QtWidgets.QFrame):
     def apply_theme(self):
         resolved = self._resolve_theme()
         self._current_resolved_theme = resolved
-        palette = THEME_PALETTES.get(resolved, THEME_PALETTES["dark"])
+        palette = get_palette(resolved)
 
         # 1. Painel principal
         self.setStyleSheet(f"""
@@ -1612,7 +1408,7 @@ class ACPanelWidget(QtWidgets.QFrame):
 
         # 2. Header
         if hasattr(self, 'lbl_room_temp'):
-            self.lbl_room_temp.setStyleSheet(f"color: {palette['text_primary']}; font-size: 15px; font-family: 'Segoe UI', sans-serif;")
+            self.lbl_room_temp.setStyleSheet(f"color: {palette['text_primary']}; font-size: 15px; font-family: {FONT_STACK};")
         if hasattr(self, 'therm_icon'):
             self.therm_icon.setPixmap(load_user_svg("thermometer.svg", 22, 22, padding=0, color=palette["icon_color"]))
         if hasattr(self, 'btn_power'):
@@ -1668,6 +1464,11 @@ class ACPanelWidget(QtWidgets.QFrame):
                     background-color: {palette["card_hover"]};
                     border: 1px solid {palette["border_hover"]};
                 }}
+                QPushButton:disabled {{
+                    background-color: {palette["card_bg"]};
+                    border: 1px solid {palette["border_color"]};
+                    opacity: 0.35;
+                }}
             """)
         if hasattr(self, 'btn_plus'):
             self.btn_plus.setIcon(create_stepper_icon("plus", 38, color=palette["stepper_color"]))
@@ -1680,6 +1481,11 @@ class ACPanelWidget(QtWidgets.QFrame):
                 QPushButton:hover {{
                     background-color: {palette["card_hover"]};
                     border: 1px solid {palette["border_hover"]};
+                }}
+                QPushButton:disabled {{
+                    background-color: {palette["card_bg"]};
+                    border: 1px solid {palette["border_color"]};
+                    opacity: 0.35;
                 }}
             """)
         if hasattr(self, 'slider'):
@@ -1726,7 +1532,7 @@ class ACPanelWidget(QtWidgets.QFrame):
         if unit not in ["C", "F"] or self.temp_unit == unit:
             return
         self.temp_unit = unit
-        prefs = QtCore.QSettings("LGAirConditioner", "Preferences")
+        prefs = QtCore.QSettings("WTC LG", "Preferences")
         prefs.setValue("temp_unit", unit)
         self.temp_unit_changed.emit(unit)
         self.update_ui_texts()
@@ -1735,7 +1541,7 @@ class ACPanelWidget(QtWidgets.QFrame):
         if lang not in TRANSLATIONS or self.language == lang:
             return
         self.language = lang
-        prefs = QtCore.QSettings("LGAirConditioner", "Preferences")
+        prefs = QtCore.QSettings("WTC LG", "Preferences")
         prefs.setValue("language", lang)
         self.language_changed.emit(lang)
         self.update_ui_texts()
@@ -1794,7 +1600,7 @@ class ACPanelWidget(QtWidgets.QFrame):
     def _open_settings_menu(self):
         self._menu_open = True
         resolved = self._resolve_theme()
-        pal = THEME_PALETTES.get(resolved, THEME_PALETTES["dark"])
+        pal = get_palette(resolved)
 
         menu = QtWidgets.QMenu(self)
         menu_css = f"""
@@ -1804,7 +1610,7 @@ class ACPanelWidget(QtWidgets.QFrame):
                 border: 1px solid {pal["menu_border"]};
                 border-radius: 12px;
                 padding: 6px;
-                font-family: 'Segoe UI', sans-serif;
+                font-family: {FONT_STACK};
                 font-size: 13px;
             }}
             QMenu::item {{
@@ -1906,6 +1712,12 @@ class ACPanelWidget(QtWidgets.QFrame):
         act_autostart.setChecked(is_autostart_enabled())
         act_autostart.triggered.connect(lambda: set_autostart_enabled(act_autostart.isChecked()))
 
+        menu.addSeparator()
+
+        # 6. Excluir permanentemente dados e credenciais
+        act_clear_data = menu.addAction(self.tr_text("clear_data"))
+        act_clear_data.triggered.connect(self._prompt_clear_data)
+
         btn_pos = self.btn_settings.mapToGlobal(QtCore.QPoint(0, 0))
         size_hint = menu.sizeHint()
         popup_x = btn_pos.x() + self.btn_settings.width() - size_hint.width()
@@ -1914,6 +1726,106 @@ class ACPanelWidget(QtWidgets.QFrame):
         self._menu_open = False
         if self.window():
             self.window().activateWindow()
+
+    def _prompt_clear_data(self):
+        """Exibe confirmação e realiza a purga completa das credenciais e preferências deste computador."""
+        win = self.window()
+        was_visible = False
+        if isinstance(win, FullTrayWindow) and win.isVisible():
+            was_visible = True
+            win.hide()
+
+        resolved = self._resolve_theme()
+        pal = get_palette(resolved)
+
+        box = QtWidgets.QMessageBox(None)
+        box.setWindowFlags(
+            QtCore.Qt.WindowType.Dialog
+            | QtCore.Qt.WindowType.WindowStaysOnTopHint
+        )
+        box.setWindowTitle(self.tr_text("clear_data_title"))
+        box.setText(self.tr_text("clear_data_confirm"))
+        box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+
+        # Estilização consistente com o tema e cantos elegantes
+        box.setStyleSheet(f"""
+            QMessageBox {{
+                background-color: {pal["bg_color"]};
+                font-family: {FONT_STACK};
+            }}
+            QLabel {{
+                color: {pal["text_primary"]};
+                font-size: 13px;
+                font-family: {FONT_STACK};
+                line-height: 1.4;
+            }}
+            QPushButton {{
+                background-color: {pal["card_bg"]};
+                color: {pal["text_primary"]};
+                border: 1px solid {pal["border_color"]};
+                border-radius: 8px;
+                padding: 7px 18px;
+                font-size: 13px;
+                font-weight: 600;
+                font-family: {FONT_STACK};
+                min-width: 90px;
+            }}
+            QPushButton:hover {{
+                background-color: {pal["card_hover"]};
+                border: 1px solid {pal["border_hover"]};
+            }}
+        """)
+
+        btn_delete = box.addButton(
+            "Excluir Permanentemente" if self.language == "pt" else ("Delete Permanently" if self.language == "en" else "Eliminar Permanentemente"),
+            QtWidgets.QMessageBox.ButtonRole.DestructiveRole
+        )
+        btn_delete.setStyleSheet("""
+            QPushButton {
+                background-color: #DC2626;
+                color: #FFFFFF;
+                border: 1px solid #B91C1C;
+            }
+            QPushButton:hover {
+                background-color: #EF4444;
+            }
+        """)
+
+        btn_cancel = box.addButton(
+            "Cancelar" if self.language in ["pt", "es"] else "Cancel",
+            QtWidgets.QMessageBox.ButtonRole.RejectRole
+        )
+        box.setDefaultButton(btn_cancel)
+
+        box.raise_()
+        box.activateWindow()
+        box.exec()
+
+        if box.clickedButton() == btn_delete:
+            import credentials_backend
+            credentials_backend.purge_all_app_data()
+
+            info_box = QtWidgets.QMessageBox(None)
+            info_box.setWindowFlags(
+                QtCore.Qt.WindowType.Dialog
+                | QtCore.Qt.WindowType.WindowStaysOnTopHint
+            )
+            info_box.setWindowTitle(self.tr_text("clear_data_title"))
+            info_box.setText(self.tr_text("clear_data_success"))
+            info_box.setIcon(QtWidgets.QMessageBox.Icon.Information)
+            info_box.setStyleSheet(box.styleSheet())
+            info_box.raise_()
+            info_box.activateWindow()
+            info_box.exec()
+
+            # Encerra o aplicativo de forma limpa
+            app = QtWidgets.QApplication.instance()
+            if app:
+                app.quit()
+        else:
+            # Se cancelou e o painel estava aberto, reexibe o painel
+            if was_visible and isinstance(win, FullTrayWindow):
+                win.show_popup()
 
     def _build_ui(self):
         layout = QtWidgets.QVBoxLayout(self)
@@ -1936,7 +1848,7 @@ class ACPanelWidget(QtWidgets.QFrame):
         room_box.addWidget(self.therm_icon)
 
         self.lbl_room_temp = QtWidgets.QLabel(f"Room  <b>{int(round(self.room_temp))}°C</b>")
-        self.lbl_room_temp.setStyleSheet("color: #E2E8F0; font-size: 15px; font-family: 'Segoe UI', sans-serif;")
+        self.lbl_room_temp.setStyleSheet(f"color: #E2E8F0; font-size: 15px; font-family: {FONT_STACK};")
         room_box.addWidget(self.lbl_room_temp)
 
         header.addLayout(room_box)
@@ -2207,10 +2119,7 @@ class ACPanelWidget(QtWidgets.QFrame):
     def _on_sub_option_selected(self, category: str, option: str):
         self._set_card_expanded(category, False)
         if category == "mode":
-            self.current_mode = option
-            self.card_mode.set_value(self.tr_text(option))
-            self.ac_hero.set_mode(option)
-            self.slider.set_mode(option)
+            self.set_mode(option)
             mode_map = {"Cool": "COOL", "Heat": "HEAT", "Fan": "FAN", "Dry": "AIR_DRY"}
             if option in mode_map:
                 self._send_thinq_command({"airConJobMode": {"currentJobMode": mode_map[option]}})
@@ -2244,19 +2153,31 @@ class ACPanelWidget(QtWidgets.QFrame):
     def refresh_status_from_thinq(self):
         """Consulta o status em tempo real do aparelho via nuvem LG ThinQ em segundo plano"""
         self.set_connection_status("syncing")
-        worker = ThinQWorker(self)
-        worker.status_updated.connect(self._apply_thinq_status)
-        worker.sync_failed.connect(lambda: self.set_connection_status("disconnected"))
-        self._active_workers.append(worker)
-        worker.finished.connect(lambda: self._active_workers.remove(worker) if worker in self._active_workers else None)
-        worker.start()
+        self._client.get_status()
+
+    def _on_sync_failed(self):
+        self.set_connection_status("disconnected")
+
+    def _on_status_stale(self):
+        # Um comando mais novo tornou este status obsoleto; a UI ja reflete a intencao do usuario
+        self.set_connection_status("connected")
+
+    def _on_command_finished(self, ok: bool, message: str):
+        """Comando falhou: avisa o usuario e ressincroniza a UI com o estado real do aparelho."""
+        if ok:
+            return
+        self.command_failed.emit()
+        if not self._resync_scheduled:
+            self._resync_scheduled = True
+            QtCore.QTimer.singleShot(500, self._resync_after_failure)
+
+    def _resync_after_failure(self):
+        self._resync_scheduled = False
+        self.refresh_status_from_thinq()
 
     def _send_thinq_command(self, payload: dict):
-        """Dispara comando assíncrono para o ar condicionado em segundo plano"""
-        worker = ThinQCommandWorker(payload, self)
-        self._active_workers.append(worker)
-        worker.finished.connect(lambda: self._active_workers.remove(worker) if worker in self._active_workers else None)
-        worker.start()
+        """Dispara comando assincrono para o ar condicionado em segundo plano"""
+        self._client.send_command(payload)
 
     def _apply_thinq_status(self, data: dict):
         """Aplica os valores reais retornados pela API LG ThinQ na interface"""
@@ -2291,10 +2212,7 @@ class ACPanelWidget(QtWidgets.QFrame):
         job_mode = mode.get("currentJobMode")
         if job_mode:
             formatted = "Dry" if job_mode == "AIR_DRY" else job_mode.capitalize()
-            self.current_mode = formatted
-            self.card_mode.set_value(self.tr_text(formatted))
-            self.ac_hero.set_mode(formatted)
-            self.slider.set_mode(formatted)
+            self.set_mode(formatted)
 
         flow = data.get("airFlow", {})
         wind = flow.get("windStrength")
@@ -2349,10 +2267,27 @@ class ACPanelWidget(QtWidgets.QFrame):
             self.ac_hero.set_mode(mode)
         if hasattr(self, 'slider'):
             self.slider.set_mode(mode)
+        self._sync_mode_controls()
+
+    def _sync_mode_controls(self):
+        """No modo Fan (Ventilação), desativa e oculta a temperatura, pois só a ventoinha opera"""
+        is_fan = self.current_mode.lower() in ("fan", "ventilação", "ventilacao")
+        if hasattr(self, 'btn_minus'):
+            self.btn_minus.setEnabled(not is_fan)
+        if hasattr(self, 'btn_plus'):
+            self.btn_plus.setEnabled(not is_fan)
+        if hasattr(self, 'lbl_target_num'):
+            self.lbl_target_num.setText("--" if is_fan else (
+                str(int(round(self.target_temp * 1.8 + 32))) if self.temp_unit == "F" else str(int(self.target_temp))
+            ))
+        if hasattr(self, 'lbl_target_unit'):
+            self.lbl_target_unit.setText("" if is_fan else ("°F" if self.temp_unit == "F" else "°C"))
+        if hasattr(self, 'slider'):
+            self.slider.setEnabled(not is_fan)
 
     def _update_power_button(self):
         resolved = self._resolve_theme()
-        pal = THEME_PALETTES.get(resolved, THEME_PALETTES["dark"])
+        pal = get_palette(resolved)
         col = pal.get("power_color", POWER_CREAM) if self.is_powered_on else pal.get("power_off_color", "#64748B")
         pix = svg_to_pixmap(SVG_POWER, 22, 22, col)
         self.btn_power.setIcon(QtGui.QIcon(pix))
@@ -2429,10 +2364,7 @@ class ACPanelWidget(QtWidgets.QFrame):
                     card._fan_timer.stop()
                 if hasattr(card, '_air_timer'):
                     card._air_timer.stop()
-        for worker in list(self._active_workers):
-            if worker.isRunning():
-                worker.quit()
-                worker.wait(400)
+        self._client.close()
 
 
 class FullTrayWindow(QtWidgets.QWidget):
@@ -2600,6 +2532,9 @@ def create_tray_icon() -> QtGui.QIcon:
 
     orig_path = get_resource_path(os.path.join("assets", "miniature.png"))
     if not os.path.exists(orig_path):
+        ico_path = get_resource_path(os.path.join("assets", "app_icon.ico"))
+        if os.path.exists(ico_path):
+            return QtGui.QIcon(ico_path)
         return QtGui.QIcon(load_user_icon("eco.png", 24, 24, color="#FFFFFF"))
 
     orig = QtGui.QPixmap(orig_path)
@@ -2628,14 +2563,39 @@ def create_tray_icon() -> QtGui.QIcon:
 
 class TrayApplication:
     def __init__(self):
+        # Configura ID explícito de modelo de aplicativo no Windows para agrupar corretamente o ícone na barra de tarefas
+        try:
+            import ctypes
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("Windows Tray Controller")
+        except Exception:
+            pass
+
         self.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
+        self.app.setApplicationName("Windows Tray Controller")
+        self.app.setApplicationDisplayName("Windows Tray Controller")
         self.app.setQuitOnLastWindowClosed(False)
-        self.app.setFont(QtGui.QFont("Segoe UI", 9))
+
+        # Instancia unica: se ja existe uma rodando, pede para ela abrir o painel e encerra
+        if not self._claim_single_instance():
+            sys.exit(0)
+
+        init_app_fonts()
+        app_font = QtGui.QFont("Inter", 10)
+        app_font.setStyleHint(QtGui.QFont.StyleHint.SansSerif)
+        self.app.setFont(app_font)
+
+        # Aplica o novo ícone oficial do aplicativo
+        app_ico_path = get_resource_path(os.path.join("assets", "app_icon.ico"))
+        if os.path.exists(app_ico_path):
+            self.app_icon = QtGui.QIcon(app_ico_path)
+            self.app.setWindowIcon(self.app_icon)
 
         self.window = FullTrayWindow()
+        if hasattr(self, 'app_icon'):
+            self.window.setWindowIcon(self.app_icon)
 
         self.tray = QtWidgets.QSystemTrayIcon(create_tray_icon(), self.app)
-        self.tray.setToolTip("LG Dual Inverter - Ar Condicionado")
+        self.tray.setToolTip("WTC LG - Windows Tray Controller")
 
         self._current_theme_is_light = is_windows_taskbar_light()
         self._current_apps_dark = is_windows_dark_mode()
@@ -2645,22 +2605,22 @@ class TrayApplication:
         self._theme_timer.start()
 
         menu = QtWidgets.QMenu()
-        menu.setStyleSheet("""
-            QMenu {
+        menu.setStyleSheet(f"""
+            QMenu {{
                 background-color: #18181B;
                 color: #FFFFFF;
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 8px;
                 padding: 4px;
-                font-family: 'Segoe UI', sans-serif;
-            }
-            QMenu::item {
+                font-family: {FONT_STACK};
+            }}
+            QMenu::item {{
                 padding: 6px 16px;
                 border-radius: 4px;
-            }
-            QMenu::item:selected {
+            }}
+            QMenu::item:selected {{
                 background-color: #27272A;
-            }
+            }}
         """)
         self.m_open = menu.addAction(self.window.panel.tr_text("open_panel"))
         self.m_open.triggered.connect(self.toggle)
@@ -2671,19 +2631,79 @@ class TrayApplication:
         self.action_autostart.setChecked(is_autostart_enabled())
         self.action_autostart.triggered.connect(self._toggle_autostart)
 
+        self.action_creds = menu.addAction("Configurar Credenciais LG...")
+        self.action_creds.triggered.connect(self._open_credentials_dialog)
+
+        self.action_clear_data = menu.addAction(self.window.panel.tr_text("clear_data"))
+        self.action_clear_data.triggered.connect(self.window.panel._prompt_clear_data)
+
         menu.addSeparator()
         self.m_quit = menu.addAction(self.window.panel.tr_text("quit"))
         self.m_quit.triggered.connect(self.quit)
         self.tray.setContextMenu(menu)
 
         self.window.panel.language_changed.connect(self._update_tray_texts)
+        self.window.panel.command_failed.connect(self._on_command_failed)
 
         self.tray.activated.connect(self.on_activated)
+        self.tray.messageClicked.connect(self._on_tray_message_clicked)
         self.tray.show()
+
+    SINGLE_INSTANCE_KEY = "WTC-LG-single-instance"
+
+    def _claim_single_instance(self) -> bool:
+        """Retorna True se esta e a primeira instancia. Caso contrario avisa a existente e retorna False."""
+        socket = QtNetwork.QLocalSocket()
+        socket.connectToServer(self.SINGLE_INSTANCE_KEY)
+        if socket.waitForConnected(500):
+            # --silent (autostart) nao deve abrir o painel da instancia existente
+            if "--silent" not in sys.argv and "--minimized" not in sys.argv:
+                socket.write(b"show")
+                socket.waitForBytesWritten(500)
+            socket.disconnectFromServer()
+            return False
+
+        # Remove socket orfao de uma execucao anterior que caiu e cria o servidor
+        QtNetwork.QLocalServer.removeServer(self.SINGLE_INSTANCE_KEY)
+        self._instance_server = QtNetwork.QLocalServer(self.app)
+        self._instance_server.newConnection.connect(self._on_instance_message)
+        self._instance_server.listen(self.SINGLE_INSTANCE_KEY)
+        return True
+
+    def _on_instance_message(self):
+        """Outra instancia tentou abrir: mostra o painel (ou a configuracao, se nao ha credenciais)."""
+        conn = self._instance_server.nextPendingConnection()
+        if conn is not None:
+            conn.waitForReadyRead(200)
+            conn.disconnectFromServer()
+        if not self.window.isVisible():
+            self.toggle()
+
+    def has_configured_credentials(self) -> bool:
+        """Verifica se há credenciais válidas configuradas (PAT presente)."""
+        import credentials_backend
+        creds = credentials_backend.load_credentials()
+        return bool(creds and creds.get("pat"))
+
+    def _on_tray_message_clicked(self):
+        """Ao clicar na notificação da bandeja, reabre a tela de credenciais."""
+        if not self.has_configured_credentials():
+            self._open_credentials_dialog()
+
+    def _on_command_failed(self):
+        panel = self.window.panel
+        self.tray.showMessage(
+            panel.tr_text("command_failed_title"),
+            panel.tr_text("command_failed"),
+            QtWidgets.QSystemTrayIcon.MessageIcon.Warning,
+            5000
+        )
 
     def _update_tray_texts(self, lang: str):
         self.m_open.setText(self.window.panel.tr_text("open_panel"))
         self.action_autostart.setText(self.window.panel.tr_text("autostart"))
+        if hasattr(self, "action_clear_data"):
+            self.action_clear_data.setText(self.window.panel.tr_text("clear_data"))
         self.m_quit.setText(self.window.panel.tr_text("quit"))
 
     def _check_taskbar_theme(self):
@@ -2704,11 +2724,33 @@ class TrayApplication:
         if not success:
             self.action_autostart.setChecked(not new_state)
 
+    def _open_credentials_dialog(self):
+        from credentials_dialog import CredentialsDialog
+        theme_mode = getattr(self.window.panel, "theme_mode", "system")
+        dlg = CredentialsDialog(theme_mode=theme_mode)
+        if dlg.exec():
+            # Força atualização do painel após salvar novas credenciais
+            if hasattr(self.window.panel, "refresh_status_from_thinq"):
+                self.window.panel.refresh_status_from_thinq()
+            return True
+        return False
+
     def on_activated(self, reason):
         if reason in (QtWidgets.QSystemTrayIcon.ActivationReason.Trigger, QtWidgets.QSystemTrayIcon.ActivationReason.DoubleClick):
             self.toggle()
 
     def toggle(self):
+        # Se não houver credenciais configuradas, notifica o usuário na bandeja e oferece para tentar novamente
+        if not self.has_configured_credentials():
+            self.tray.showMessage(
+                "LG ThinQ - Configuração Pendente",
+                "Você precisa conectar sua conta LG ThinQ para usar o painel. Clique aqui para configurar suas credenciais e tentar novamente.",
+                QtWidgets.QSystemTrayIcon.MessageIcon.Information,
+                6000
+            )
+            QtCore.QTimer.singleShot(250, self._open_credentials_dialog)
+            return
+
         if self.window.isVisible():
             self.window.hide()
         else:
@@ -2729,8 +2771,14 @@ class TrayApplication:
 
 
 if __name__ == "__main__":
+    import credentials_backend
     app_instance = TrayApplication()
-    # Se iniciado no boot do Windows (--silent), permanece silencioso na bandeja
-    if "--silent" not in sys.argv and "--minimized" not in sys.argv:
+
+    # Se não houver credenciais configuradas nem .env, abre automaticamente a tela de onboarding
+    existing_creds = credentials_backend.load_credentials()
+    if not existing_creds or not existing_creds.get("pat"):
+        QtCore.QTimer.singleShot(150, app_instance._open_credentials_dialog)
+    elif "--silent" not in sys.argv and "--minimized" not in sys.argv:
         QtCore.QTimer.singleShot(350, app_instance.window.show_popup)
+
     sys.exit(app_instance.run())
