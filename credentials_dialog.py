@@ -20,127 +20,8 @@ from aiohttp import ClientSession
 from thinqconnect import ThinQApi
 
 import credentials_backend
-
-# ---------------------------------------------------------------------
-# Tipografia e Pilha de Fontes (Notion Style: Inter)
-# ---------------------------------------------------------------------
-FONT_STACK = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-
-def init_fonts():
-    """Garante que a fonte Inter (estilo Notion) seja registrada no QFontDatabase."""
-    if not QtGui.QFontDatabase.hasFamily("Inter"):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        font_path = os.path.join(base_dir, "assets", "fonts", "Inter-Variable.ttf")
-        if os.path.exists(font_path):
-            QtGui.QFontDatabase.addApplicationFont(font_path)
-
-# ---------------------------------------------------------------------
-# Paletas de Cores Sincronizadas com o ui_panel (Dark, Black, Light)
-# ---------------------------------------------------------------------
-FALLBACK_PALETTES = {
-    "dark": {
-        "bg_color": "#0D0E12",
-        "card_bg": "#161820",
-        "card_hover": "#1E202B",
-        "card_active": "#272A36",
-        "input_bg": "#111218",
-        "input_border": "rgba(255, 255, 255, 0.12)",
-        "input_border_focus": "#38BDF8",
-        "border_color": "rgba(255, 255, 255, 0.08)",
-        "panel_border": "rgba(255, 255, 255, 0.12)",
-        "text_primary": "#FFFFFF",
-        "text_secondary": "#94A3B8",
-        "text_muted": "#64748B",
-        "accent_primary": "#38BDF8",
-        "accent_primary_text": "#000000",
-        "accent_hover": "#60A5FA",
-        "accent_green": "#4ADE80",
-        "accent_red": "#F87171",
-        "btn_sec_bg": "rgba(255, 255, 255, 0.06)",
-        "btn_sec_hover": "rgba(255, 255, 255, 0.12)",
-        "btn_sec_text": "#E2E8F0",
-        "is_light": False,
-    },
-    "black": {
-        "bg_color": "#000000",
-        "card_bg": "#0D0D11",
-        "card_hover": "#17171E",
-        "card_active": "#21212B",
-        "input_bg": "#0A0B0E",
-        "input_border": "rgba(255, 255, 255, 0.14)",
-        "input_border_focus": "#38BDF8",
-        "border_color": "rgba(255, 255, 255, 0.10)",
-        "panel_border": "rgba(255, 255, 255, 0.14)",
-        "text_primary": "#FFFFFF",
-        "text_secondary": "#9E9EAF",
-        "text_muted": "#6E6E82",
-        "accent_primary": "#38BDF8",
-        "accent_primary_text": "#000000",
-        "accent_hover": "#60A5FA",
-        "accent_green": "#4ADE80",
-        "accent_red": "#F87171",
-        "btn_sec_bg": "rgba(255, 255, 255, 0.08)",
-        "btn_sec_hover": "rgba(255, 255, 255, 0.15)",
-        "btn_sec_text": "#E2E8F0",
-        "is_light": False,
-    },
-    "light": {
-        "bg_color": "#F8F9FA",
-        "card_bg": "#FFFFFF",
-        "card_hover": "#F1F5F9",
-        "card_active": "#E2E8F0",
-        "input_bg": "#FFFFFF",
-        "input_border": "rgba(0, 0, 0, 0.15)",
-        "input_border_focus": "#0284C7",
-        "border_color": "rgba(0, 0, 0, 0.08)",
-        "panel_border": "rgba(0, 0, 0, 0.14)",
-        "text_primary": "#0F172A",
-        "text_secondary": "#475569",
-        "text_muted": "#64748B",
-        "accent_primary": "#0284C7",
-        "accent_primary_text": "#FFFFFF",
-        "accent_hover": "#0369A1",
-        "accent_green": "#16A34A",
-        "accent_red": "#DC2626",
-        "btn_sec_bg": "rgba(0, 0, 0, 0.05)",
-        "btn_sec_hover": "rgba(0, 0, 0, 0.10)",
-        "btn_sec_text": "#1E293B",
-        "is_light": True,
-    },
-}
-
-def is_windows_dark_mode() -> bool:
-    """Verifica no registro do Windows se o tema de aplicativos é escuro (0) ou claro (1)."""
-    try:
-        import winreg
-        key = winreg.OpenKey(
-            winreg.HKEY_CURRENT_USER,
-            r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
-            0,
-            winreg.KEY_READ
-        )
-        val, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
-        winreg.CloseKey(key)
-        return bool(val == 0)
-    except Exception:
-        return True
-
-def resolve_theme_palette(theme_mode: Optional[str] = None) -> tuple[str, dict]:
-    """Retorna o tema concreto ('dark', 'black', 'light') e o dicionário de cores."""
-    if theme_mode is None:
-        prefs = QtCore.QSettings("WTC LG", "Preferences")
-        theme_mode = str(prefs.value("theme", "system"))
-
-    if theme_mode not in ["system", "light", "dark", "black"]:
-        theme_mode = "system"
-
-    if theme_mode == "system":
-        resolved = "dark" if is_windows_dark_mode() else "light"
-    else:
-        resolved = theme_mode
-
-    pal = dict(FALLBACK_PALETTES.get(resolved, FALLBACK_PALETTES["dark"]))
-    return resolved, pal
+from common import FONT_STACK, init_app_fonts, svg_to_pixmap
+from theme import resolve_theme_palette
 
 # ---------------------------------------------------------------------
 # Ícones Minimalistas Vetoriais (SVG puros)
@@ -162,18 +43,6 @@ SVG_EYE = """<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" view
 SVG_EYE_OFF = """<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>"""
 
 SVG_AC = """<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="12" rx="2"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="6" y1="18" x2="6" y2="20"/><line x1="12" y1="18" x2="12" y2="20"/><line x1="18" y1="18" x2="18" y2="20"/></svg>"""
-
-def svg_to_pixmap(svg_template: str, width: int, height: int, color: str = "#FFFFFF") -> QtGui.QPixmap:
-    svg_str = svg_template.format(color=color)
-    renderer = QtSvg.QSvgRenderer(QtCore.QByteArray(svg_str.encode("utf-8")))
-    pix = QtGui.QPixmap(width, height)
-    pix.fill(QtCore.Qt.GlobalColor.transparent)
-    p = QtGui.QPainter(pix)
-    p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
-    p.setRenderHint(QtGui.QPainter.RenderHint.SmoothPixmapTransform)
-    renderer.render(p)
-    p.end()
-    return pix
 
 # ---------------------------------------------------------------------
 # Worker Assíncrono de Validação com a LG ThinQ API
@@ -259,7 +128,7 @@ class CredentialsDialog(QtWidgets.QDialog):
 
     def __init__(self, parent=None, theme_mode: Optional[str] = None):
         super().__init__(parent)
-        init_fonts()
+        init_app_fonts()
 
         self.setWindowTitle("Configuração LG ThinQ")
         self.setFixedSize(550, 640)
