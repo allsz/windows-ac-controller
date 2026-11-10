@@ -25,11 +25,13 @@ class DATA_BLOB(ctypes.Structure):
 _crypt32 = ctypes.windll.crypt32
 _kernel32 = ctypes.windll.kernel32
 
-def _get_app_data_dir() -> str:
-    """Retorna o diretório %APPDATA%/WTC LG seguro."""
+def _get_app_data_dir(create: bool = False) -> str:
+    """Retorna o diretório %APPDATA%/WTC LG. So cria a pasta quando create=True (gravacao),
+    para que ler/consultar o cofre nunca recrie a pasta apos uma exclusao de dados."""
     appdata = os.getenv("APPDATA") or os.path.expanduser("~")
     target_dir = os.path.join(appdata, "WTC LG")
-    os.makedirs(target_dir, exist_ok=True)
+    if create:
+        os.makedirs(target_dir, exist_ok=True)
     return target_dir
 
 _legacy_migration_done = False
@@ -50,6 +52,7 @@ def _migrate_legacy_data_dir() -> None:
             target_vault = os.path.join(target_dir, "credentials.vault")
             if os.path.exists(legacy_vault) and not os.path.exists(target_vault):
                 import shutil
+                os.makedirs(target_dir, exist_ok=True)
                 shutil.copy2(legacy_vault, target_vault)
             # Remove arquivos e diretório legado após migração
             import shutil
@@ -57,8 +60,8 @@ def _migrate_legacy_data_dir() -> None:
     except Exception:
         pass
 
-def _get_vault_file_path() -> str:
-    return os.path.join(_get_app_data_dir(), "credentials.vault")
+def _get_vault_file_path(create_dir: bool = False) -> str:
+    return os.path.join(_get_app_data_dir(create_dir), "credentials.vault")
 
 def dpapi_encrypt(plaintext: str) -> str:
     """Criptografa uma string usando a DPAPI do Windows e retorna base64."""
@@ -128,8 +131,22 @@ def save_credentials(pat: str, country: str = "BR", client_id: str = "windows_ac
     raw_json = json.dumps(payload, ensure_ascii=False)
     encrypted_data = dpapi_encrypt(raw_json)
 
-    with open(_get_vault_file_path(), "w", encoding="ascii") as f:
-        f.write(encrypted_data)
+    # Gravacao atomica: escreve em arquivo temporario na mesma pasta e troca com os.replace,
+    # assim um crash no meio da escrita nunca deixa o cofre truncado.
+    vault_path = _get_vault_file_path(create_dir=True)
+    tmp_path = vault_path + ".tmp"
+    try:
+        with open(tmp_path, "w", encoding="ascii") as f:
+            f.write(encrypted_data)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_path, vault_path)
+    except Exception:
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
+        raise
 
 def load_credentials() -> Optional[Dict[str, str]]:
     """Carrega as credenciais se existirem; caso contrário verifica fallback do .env se presente."""
