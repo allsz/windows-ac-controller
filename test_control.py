@@ -10,7 +10,7 @@ load_dotenv()
 PAT = os.getenv("THINQ_PAT")
 COUNTRY = os.getenv("THINQ_COUNTRY", "BR")
 CLIENT_ID = os.getenv("THINQ_CLIENT_ID", "windows_ac_tray_app")
-DEVICE_ID = os.getenv("THINQ_DEVICE_ID", "947e6dea7dd7be07c5e1b7821664f80c1db9845fbf75d6d4f33c60d206d7ab3a")
+DEVICE_ID = os.getenv("THINQ_DEVICE_ID")
 
 async def send_command(payload: dict):
     async with ClientSession() as session:
