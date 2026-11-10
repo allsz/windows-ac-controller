@@ -13,8 +13,11 @@ env/
 # PyInstaller / Build outputs
 build/
 dist/
+release/
 *.manifest
 *.spec
+!WTC LG.spec
+!WTC LG.spec
 
 # IDE, AI agents and OS files
 .vscode/
@@ -28,3 +31,6 @@ Desktop.ini
 
 # Scratch and temporary testing files
 scratch/
+
+# Assets antigos guardados localmente
+assets_backup_unused/

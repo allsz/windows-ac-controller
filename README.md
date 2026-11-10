@@ -5,13 +5,16 @@ Aplicativo moderno para a bandeja do sistema (System Tray) do Windows 11/10 para
 Desenvolvido em **Python 3.11+** com **PySide6 (Qt)**, inspirado nas diretrizes visuais do macOS e flyouts modernos do Windows 11 (Dark Glass, Glassmorphism e micro-animações a 60 FPS).
 
 <div align="center">
-  <img src="assets/app_mockup_off.png" width="220" style="border-radius: 16px; margin: 4px;" alt="App Desligado (Standby)" />
-  &nbsp;
-  <img src="assets/app_mockup_on.png" width="220" style="border-radius: 16px; margin: 4px;" alt="App Ligado - Modo Refrigeração (Dark Glass)" />
-  &nbsp;
-  <img src="assets/app_mockup_light_heat.png" width="220" style="border-radius: 16px; margin: 4px;" alt="App Ligado - Modo Aquecimento (Tema Claro)" />
-  &nbsp;
-  <img src="assets/app_mockup_black_fan.png" width="220" style="border-radius: 16px; margin: 4px;" alt="App Ligado - Modo Ventilação (True Black)" />
+  <table>
+    <tr>
+      <td align="center"><img src="assets/app_mockup_off.png" width="260" alt="App Desligado (Standby)" /></td>
+      <td align="center"><img src="assets/app_mockup_on.png" width="260" alt="App Ligado - Modo Refrigeração (Dark Glass)" /></td>
+    </tr>
+    <tr>
+      <td align="center"><img src="assets/app_mockup_light_heat.png" width="260" alt="App Ligado - Modo Aquecimento (Tema Claro)" /></td>
+      <td align="center"><img src="assets/app_mockup_black_fan.png" width="260" alt="App Ligado - Modo Ventilação (True Black)" /></td>
+    </tr>
+  </table>
 </div>
 
 ---
